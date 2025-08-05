@@ -25,8 +25,8 @@ sudo pacman -S python-pipx  # Arch Linux
 python -m pip install --user pipx  # Other systems
 
 # Clone the repository
-git clone <repository-url>
-cd python_jav_nfo_generator
+git clone https://github.com/ZephyrX11/JAV-NFO-Generator
+cd JAV-NFO-Generator
 
 # Install globally using pipx
 pipx install -e .
@@ -35,8 +35,8 @@ pipx install -e .
 #### Option B: Using pip (Other systems)
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd python_jav_nfo_generator
+git clone https://github.com/ZephyrX11/JAV-NFO-Generator
+cd JAV-NFO-Generator
 
 # Install globally
 python -m pip install --user -e .
@@ -45,8 +45,8 @@ python -m pip install --user -e .
 #### Option C: Manual PATH setup
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd python_jav_nfo_generator
+git clone https://github.com/ZephyrX11/JAV-NFO-Generator
+cd JAV-NFO-Generator
 
 # Install dependencies
 pip install -r requirements.txt
@@ -65,8 +65,8 @@ sudo cp jav-nfo /usr/local/bin/
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd python_jav_nfo_generator
+git clone https://github.com/ZephyrX11/JAV-NFO-Generator
+cd JAV-NFO-Generator
 ```
 
 2. Create a virtual environment (recommended):
@@ -98,10 +98,10 @@ jav-nfo search --id XXX-123
 # Generate NFO file
 jav-nfo search --id XXX-123 --nfo
 
-# Translate metadata to English (overrides settings)
+# Translate metadata to English
 jav-nfo search --id XXX-123 --translate
 
-# Generate NFO file with translation (overrides settings)
+# Generate NFO file with translation
 jav-nfo search --id XXX-123 --nfo --translate
 ```
 
@@ -110,7 +110,7 @@ jav-nfo search --id XXX-123 --nfo --translate
 # Basic auto detection
 jav-nfo auto
 
-# Auto detection with translation (overrides settings)
+# Auto detection with translation
 jav-nfo auto --translate
 ```
 
@@ -119,7 +119,7 @@ jav-nfo auto --translate
 # Basic batch processing
 jav-nfo batch --directory /path/to/videos
 
-# Batch processing with translation (overrides settings)
+# Batch processing with translation
 jav-nfo batch --directory /path/to/videos --translate
 ```
 
@@ -202,22 +202,11 @@ jav-nfo export-cache --output cache_backup.json
 jav-nfo import-cache --input cache_backup.json
 ```
 
-### **Smart Caching Example:**
-When translating genres like `アイドル・芸能人, 単体作品, パイズリ`, each genre is cached individually:
-- `アイドル・芸能人` → `Idols and celebrities` (cached)
-- `単体作品` → `Solo work` (cached)
-- `パイズリ` → `Titty fuck` (cached)
-
-If another video has `単体作品, 巨乳`, only `巨乳` needs translation since `単体作品` is already cached!
-
 ## Configuration
 
 Create a `.env` file in the project root to configure settings:
 
 ```env
-# API endpoints
-FANZA_API_URL=https://api.video.dmm.co.jp/graphql
-
 # User agent for requests
 USER_AGENT=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 
