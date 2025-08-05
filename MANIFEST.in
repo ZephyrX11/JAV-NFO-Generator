@@ -1,0 +1,20 @@
+include README.md
+include requirements.txt
+include env.example
+include install.sh
+include install.bat
+include install-simple.sh
+include jav-nfo
+recursive-include config *.py
+recursive-include scrapers *.py
+recursive-include generators *.py
+recursive-include utils *.py
+recursive-include tests *.py
+exclude *.pyc
+exclude __pycache__
+exclude *.egg-info
+exclude venv
+exclude .env
+exclude *.nfo
+exclude *.json
+exclude *.log 

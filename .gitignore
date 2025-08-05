@@ -45,6 +45,15 @@ nfo_files/
 *.nfo
 *.log
 
+# Cache files
+*.json
+!env.example
+!requirements.txt
+
 # Test files
 test_*.py
-*_test.py 
+*_test.py
+
+# Temporary files
+*.tmp
+*.temp 

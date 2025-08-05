@@ -2,6 +2,7 @@ import requests
 import time
 from typing import Optional, Dict, Any
 from config.settings import settings
+from utils.cache import translation_cache
 
 class Translator:
     """Translation utility class."""
@@ -13,12 +14,13 @@ class Translator:
         self.target_lang = settings.TRANSLATION_TARGET_LANG
         self.session = requests.Session()
     
-    def translate_text(self, text: str) -> Optional[str]:
+    def translate_text(self, text: str, field_type: str = "general") -> Optional[str]:
         """
-        Translate text using the configured translation service.
+        Translate text using the configured translation service with caching.
         
         Args:
             text: Text to translate
+            field_type: Type of field for caching (genres, actress, director, etc.)
             
         Returns:
             Translated text or None if failed
@@ -26,13 +28,26 @@ class Translator:
         if not text or not text.strip():
             return text
         
+        # Check cache first
+        cached_translation = translation_cache.get_cached_translation(text, field_type)
+        if cached_translation:
+            return cached_translation
+        
+        # Translate using service
+        translated_text = None
         if self.service == "google":
-            return self._translate_google(text)
+            translated_text = self._translate_google(text)
         elif self.service == "deepl":
-            return self._translate_deepl(text)
+            translated_text = self._translate_deepl(text)
         else:
             print(f"Unsupported translation service: {self.service}")
             return text
+        
+        # Cache the translation if successful
+        if translated_text and translated_text != text:
+            translation_cache.set_cached_translation(text, field_type, translated_text)
+        
+        return translated_text
     
     def _translate_google(self, text: str) -> Optional[str]:
         """
@@ -114,7 +129,7 @@ class Translator:
     
     def translate_metadata(self, metadata: Dict[str, Any], force_enable: bool = False) -> Dict[str, Any]:
         """
-        Translate metadata fields based on configuration.
+        Translate metadata fields based on configuration with caching.
         
         Args:
             metadata: Original metadata dictionary
@@ -132,16 +147,56 @@ class Translator:
             field = field.strip()
             if field in metadata and metadata[field]:
                 original_text = metadata[field]
-                translated_text = self.translate_text(original_text)
+                
+                # Handle comma-separated fields (genres, actress)
+                if field in ['genres', 'actress'] and ',' in original_text:
+                    translated_text = self._translate_comma_separated(original_text, field)
+                else:
+                    # Use field-specific caching for single values
+                    translated_text = self.translate_text(original_text, field)
                 
                 if translated_text and translated_text != original_text:
                     translated_metadata[field] = translated_text
                     print(f"Translated {field}: {original_text[:50]}... → {translated_text[:50]}...")
                 
-                # Rate limiting for API calls
-                time.sleep(0.5)
+                # Rate limiting for API calls (only if not cached)
+                if not translation_cache.get_cached_translation(original_text, field):
+                    time.sleep(0.5)
         
         return translated_metadata
+    
+    def _translate_comma_separated(self, text: str, field_type: str) -> str:
+        """
+        Translate comma-separated values individually with caching.
+        
+        Args:
+            text: Comma-separated text to translate
+            field_type: Type of field (genres, actress, etc.)
+            
+        Returns:
+            Translated comma-separated text
+        """
+        if not text or not text.strip():
+            return text
+        
+        # Split by comma and clean up
+        items = [item.strip() for item in text.split(',') if item.strip()]
+        translated_items = []
+        
+        for item in items:
+            # Check cache first for individual item
+            cached_translation = translation_cache.get_cached_translation(item, field_type)
+            if cached_translation:
+                translated_items.append(cached_translation)
+            else:
+                # Translate individual item
+                translated_item = self.translate_text(item, field_type)
+                if translated_item and translated_item != item:
+                    translated_items.append(translated_item)
+                else:
+                    translated_items.append(item)
+        
+        return ', '.join(translated_items)
     
     def is_enabled(self) -> bool:
         """

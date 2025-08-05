@@ -31,6 +31,10 @@ class Settings:
     # Genres to skip (comma-separated)
     SKIP_GENRES = os.getenv("SKIP_GENRES", "4K,ハイビジョン,独占配信").split(",")
     
+    # Cache settings
+    CACHE_ENABLED = os.getenv("CACHE_ENABLED", "true").lower() == "true"
+    CACHE_FILE = os.getenv("CACHE_FILE", "")  # Empty for default location
+    
     # File Patterns
     JAV_CODE_PATTERN = r'[A-Za-z]{2,5}[-]?\d{3,5}'
     VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mkv', '.wmv', '.mov']

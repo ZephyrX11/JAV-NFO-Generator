@@ -22,6 +22,7 @@ from generators.nfo import NFOGenerator
 from utils.pattern import PatternMatcher
 from utils.file_utils import FileUtils
 from utils.translator import Translator
+from utils.cache import translation_cache
 
 class JAVNFOGenerator:
     """Main application class for JAV NFO Generator."""
@@ -236,6 +237,47 @@ class JAVNFOGenerator:
             print(f"  Year: {result.get('year', 'N/A')}")
         else:
             print(f"{Fore.YELLOW}No metadata found{Style.RESET_ALL}")
+    
+    def show_cache_stats(self) -> None:
+        """Show translation cache statistics."""
+        stats = translation_cache.get_cache_stats()
+        print(f"{Fore.CYAN}=== Translation Cache Statistics ==={Style.RESET_ALL}")
+        for field_type, count in stats.items():
+            print(f"{Fore.GREEN}{field_type}:{Style.RESET_ALL} {count} entries")
+        print(f"{Fore.CYAN}===================================={Style.RESET_ALL}")
+    
+    def clear_cache(self, field_type: str = None) -> None:
+        """
+        Clear translation cache.
+        
+        Args:
+            field_type: Specific field type to clear (None for all)
+        """
+        translation_cache.clear_cache(field_type)
+        if field_type:
+            print(f"{Fore.GREEN}Cleared cache for {field_type}{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.GREEN}Cleared all translation cache{Style.RESET_ALL}")
+    
+    def export_cache(self, output_file: str) -> None:
+        """
+        Export translation cache to file.
+        
+        Args:
+            output_file: Output file path
+        """
+        translation_cache.export_cache(output_file)
+        print(f"{Fore.GREEN}Exported cache to {output_file}{Style.RESET_ALL}")
+    
+    def import_cache(self, input_file: str) -> None:
+        """
+        Import translation cache from file.
+        
+        Args:
+            input_file: Input file path
+        """
+        translation_cache.import_cache(input_file)
+        print(f"{Fore.GREEN}Imported cache from {input_file}{Style.RESET_ALL}")
 
 # CLI Commands
 @click.group()
@@ -285,11 +327,38 @@ def list_scrapers():
 
 @cli.command()
 @click.option('--scraper', '-s', required=True, help='Scraper name to test')
-@click.option('--code', '-c', required=True, help='JAV code to test with')
-def test(scraper, code):
+@click.option('--id', '-i', required=True, help='JAV ID to test with')
+def test(scraper, id):
     """Test a specific scraper."""
     app = JAVNFOGenerator()
-    app.test_scraper(scraper, code)
+    app.test_scraper(scraper, id)
+
+@cli.command()
+def cache_stats():
+    """Show translation cache statistics."""
+    app = JAVNFOGenerator()
+    app.show_cache_stats()
+
+@cli.command()
+@click.option('--field', '-f', help='Specific field type to clear (genres, actress, director, etc.)')
+def clear_cache(field):
+    """Clear translation cache."""
+    app = JAVNFOGenerator()
+    app.clear_cache(field)
+
+@cli.command()
+@click.option('--output', '-o', required=True, help='Output file path')
+def export_cache(output):
+    """Export translation cache to file."""
+    app = JAVNFOGenerator()
+    app.export_cache(output)
+
+@cli.command()
+@click.option('--input', '-i', required=True, help='Input file path')
+def import_cache(input):
+    """Import translation cache from file."""
+    app = JAVNFOGenerator()
+    app.import_cache(input)
 
 if __name__ == '__main__':
     cli()
