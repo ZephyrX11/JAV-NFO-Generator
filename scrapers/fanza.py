@@ -162,7 +162,8 @@ class FanzaScraper(BaseScraper):
             
             # Extract images
             package_image = content.get('packageImage', {})
-            poster_url = package_image.get('largeUrl', '') if package_image else ''
+            cover_url = package_image.get('largeUrl', '') if package_image else ''
+            poster_url = package_image.get('mediumUrl', '') if package_image else ''
             
             sample_images = content.get('sampleImages', [])
             fanart_urls = [img.get('largeImageUrl', '') for img in sample_images if img.get('largeImageUrl')]
@@ -173,6 +174,12 @@ class FanzaScraper(BaseScraper):
             # Get content ID and JAV ID
             content_id = content.get('id', '').lower()
             jav_id = PatternMatcher.content_id_to_jav_code(content_id)
+            
+            # Extract rating info
+            review = raw_data.get('data', {}).get('reviewSummary', {})
+            rating = review.get('average', '')  # Use float or format as string
+            votes = review.get('total', '')     # Total number of votes
+
             
             return {
                 'title': title,
@@ -185,7 +192,8 @@ class FanzaScraper(BaseScraper):
                 'release_date': release_date,
                 'runtime': runtime,
                 'country': 'Japan',
-                'rating': 'R',
+                'rating': rating,
+                'votes': votes,
                 'jav_id': jav_id,
                 'content_id': content_id,
                 'actress': ', '.join(actress_names) if actress_names else '',
@@ -195,6 +203,7 @@ class FanzaScraper(BaseScraper):
                 'label': label_name,
                 'series': series_name,
                 'genres': filtered_genres,
+                'cover': cover_url,
                 'poster': poster_url,
                 'fanart': fanart_urls[0] if fanart_urls else '',
                 'sample_images': fanart_urls,

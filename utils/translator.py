@@ -150,7 +150,7 @@ class Translator:
                 
                 # Handle comma-separated fields (genres, actress)
                 if field in ['genres', 'actress'] and ',' in original_text:
-                    translated_text = self._translate_comma_separated(original_text, field)
+                    translated_text = self._translate_comma_separated(original_text, field, force_enable=force_enable)
                 else:
                     # Use field-specific caching for single values
                     translated_text = self.translate_text(original_text, field)
@@ -165,37 +165,39 @@ class Translator:
         
         return translated_metadata
     
-    def _translate_comma_separated(self, text: str, field_type: str) -> str:
+    def _translate_comma_separated(self, text: str, field_type: str, force_enable: bool = False) -> str:
         """
         Translate comma-separated values individually with caching.
-        
-        Args:
-            text: Comma-separated text to translate
-            field_type: Type of field (genres, actress, etc.)
-            
-        Returns:
-            Translated comma-separated text
         """
         if not text or not text.strip():
             return text
-        
         # Split by comma and clean up
         items = [item.strip() for item in text.split(',') if item.strip()]
         translated_items = []
-        
         for item in items:
-            # Check cache first for individual item
+            if field_type == 'actress' and (settings.TRANSLATION_ENABLED or force_enable):
+                # Translate the full name as a single string
+                translated_item = self.translate_text(item, field_type) or item
+                # After translation, split and switch first and last part if possible
+                parts = translated_item.split()
+                if len(parts) == 2:
+                    item = f"{parts[1]} {parts[0]}"
+                elif len(parts) > 2:
+                    item = f"{parts[-1]} {' '.join(parts[1:-1])} {parts[0]}"
+                else:
+                    item = translated_item
+                translated_items.append(item)
+                continue
+            # Not actress or translation not enabled, normal translation
             cached_translation = translation_cache.get_cached_translation(item, field_type)
             if cached_translation:
                 translated_items.append(cached_translation)
+                continue
+            translated_item = self.translate_text(item, field_type)
+            if translated_item and translated_item != item:
+                translated_items.append(translated_item)
             else:
-                # Translate individual item
-                translated_item = self.translate_text(item, field_type)
-                if translated_item and translated_item != item:
-                    translated_items.append(translated_item)
-                else:
-                    translated_items.append(item)
-        
+                translated_items.append(item)
         return ', '.join(translated_items)
     
     def is_enabled(self) -> bool:

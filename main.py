@@ -9,6 +9,7 @@ from typing import List, Optional
 import click
 from colorama import init, Fore, Style
 from tqdm import tqdm
+import requests
 
 # Initialize colorama for cross-platform colored output
 init()
@@ -133,8 +134,29 @@ class JAVNFOGenerator:
                     print(f"{Fore.CYAN}Translating metadata for {filename}...{Style.RESET_ALL}")
                     best_result = self.translator.translate_metadata(best_result, force_enable=True)
                 
-                # Generate NFO file
-                if self.nfo_generator.generate_nfo(best_result, filename, output_dir):
+                # Generate NFO file (pass metadata for tag replacement)
+                nfo_success = self.nfo_generator.generate_nfo(best_result, filename, output_dir)
+                if nfo_success:
+                    # Download poster and fanart images to output dir
+                    nfo_dir = os.path.dirname(FileUtils.get_output_path(filename, output_dir, best_result))
+                    if not os.path.exists(nfo_dir):
+                        os.makedirs(nfo_dir, exist_ok=True)
+                    for img_type in ["poster", "fanart"]:
+                        url = best_result.get(img_type)
+                        if url:
+                            ext = os.path.splitext(url)[1] or ".jpg"
+                            img_filename = f"{os.path.splitext(filename)[0]}.{img_type}{ext}"
+                            img_path = os.path.join(nfo_dir, img_filename)
+                            try:
+                                r = requests.get(url, timeout=15)
+                                if r.status_code == 200:
+                                    with open(img_path, "wb") as f:
+                                        f.write(r.content)
+                                    print(f"Downloaded {img_type} image: {img_path}")
+                                else:
+                                    print(f"Failed to download {img_type} image: {url}")
+                            except Exception as e:
+                                print(f"Error downloading {img_type} image: {e}")
                     success_count += 1
                     print(f"{Fore.GREEN}Successfully generated NFO for {filename}{Style.RESET_ALL}")
                 else:
@@ -190,6 +212,7 @@ class JAVNFOGenerator:
         print(f"{Fore.GREEN}Runtime:{Style.RESET_ALL} {metadata.get('runtime', 'N/A')}")
         print(f"{Fore.GREEN}Country:{Style.RESET_ALL} {metadata.get('country', 'N/A')}")
         print(f"{Fore.GREEN}Rating:{Style.RESET_ALL} {metadata.get('rating', 'N/A')}")
+        print(f"{Fore.GREEN}Votes:{Style.RESET_ALL} {metadata.get('votes', 'N/A')}")
         
         # Cast and crew
         print(f"{Fore.GREEN}Actress:{Style.RESET_ALL} {metadata.get('actress', 'N/A')}")
@@ -207,6 +230,7 @@ class JAVNFOGenerator:
         print(f"{Fore.GREEN}Plot:{Style.RESET_ALL} {metadata.get('plot', 'N/A')}")
         
         # Images
+        print(f"{Fore.GREEN}Cover:{Style.RESET_ALL} {metadata.get('cover', 'N/A')}")
         print(f"{Fore.GREEN}Poster:{Style.RESET_ALL} {metadata.get('poster', 'N/A')}")
         print(f"{Fore.GREEN}Fanart:{Style.RESET_ALL} {metadata.get('fanart', 'N/A')}")
         print(f"{Fore.GREEN}Actress Image:{Style.RESET_ALL} {metadata.get('actress_image', 'N/A')}")

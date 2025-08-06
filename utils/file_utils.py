@@ -2,6 +2,8 @@ import os
 import shutil
 from typing import Optional
 from pathlib import Path
+import re
+from config.settings import settings
 
 class FileUtils:
     """Utility class for file operations."""
@@ -24,21 +26,26 @@ class FileUtils:
             return False
     
     @staticmethod
-    def get_output_path(filename: str, output_dir: str = ".") -> str:
+    def get_output_path(filename: str, output_dir: str = ".", metadata: dict = None) -> str:
         """
-        Generate output path for NFO file.
-        
-        Args:
-            filename: Original video filename
-            output_dir: Output directory
-            
-        Returns:
-            Full path for the NFO file
+        Generate output path for NFO file, supporting tag replacement.
         """
         # Remove video extension and add .nfo
         base_name = os.path.splitext(filename)[0]
         nfo_filename = f"{base_name}.nfo"
-        
+        # Use output_dir or settings.OUTPUT_DIR_TEMPLATE
+        if not output_dir or output_dir == ".":
+            output_dir = getattr(settings, "OUTPUT_DIR_TEMPLATE", "./nfo_files/<YEAR>/<ID>")
+        # Replace tags in output_dir if metadata is provided
+        if metadata:
+            def tag_replacer(match):
+                tag = match.group(1)
+                value = metadata.get(tag.lower(), "")
+                return str(value) if value else tag
+            output_dir = re.sub(r"<([A-Z_]+)>", tag_replacer, output_dir)
+        # Default to current dir if still empty
+        if not output_dir:
+            output_dir = "."
         return os.path.join(output_dir, nfo_filename)
     
     @staticmethod

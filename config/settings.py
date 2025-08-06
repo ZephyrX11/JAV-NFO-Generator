@@ -16,7 +16,10 @@ class Settings:
     REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "30"))
     
     # Output Settings
-    DEFAULT_OUTPUT_DIR = os.getenv("DEFAULT_OUTPUT_DIR", "./nfo_files")
+    DEFAULT_OUTPUT_DIR = os.getenv("DEFAULT_OUTPUT_DIR", "")
+    
+    # Output directory template with tags (user can set this)
+    OUTPUT_DIR_TEMPLATE = os.getenv("OUTPUT_DIR_TEMPLATE", "<YEAR>/<ID>")
     
     # Translation Settings
     TRANSLATION_ENABLED = os.getenv("TRANSLATION_ENABLED", "false").lower() == "true"
@@ -47,10 +50,12 @@ class Settings:
     <sorttitle>{sort_title}</sorttitle>
     <set>{series}</set>
     <year>{year}</year>
+    <rating>{rating}</rating>
+    <votes>{votes}</votes>
     <releasedate>{release_date}</releasedate>
     <runtime>{runtime}</runtime>
     <country>{country}</country>
-    <mpaa>{rating}</mpaa>
+    <mpaa>{mpaa}</mpaa>
     <id>{jav_id}</id>
     <uniqueid type="jav" default="true">{jav_id}</uniqueid>
     <uniqueid type="content_id">{content_id}</uniqueid>
@@ -60,13 +65,10 @@ class Settings:
     <director>{director}</director>
     <studio>{studio}</studio>
     <label>{label}</label>
-    <genre>{genres}</genre>
-    <actor>
-        <name>{actress}</name>
-        <role>Actress</role>
-        <thumb>{actress_image}</thumb>
-    </actor>
+{genre_tags}
+{actor_tags}
     <thumb aspect="poster">{poster}</thumb>
+    <thumb aspect="cover">{cover}</thumb>
     <fanart>
         <thumb>{fanart}</thumb>
     </fanart>
