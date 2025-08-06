@@ -21,8 +21,7 @@ class TranslationCache:
             cache_file: Path to cache file (default: ~/.jav_nfo_cache.json)
         """
         if cache_file is None:
-            cache_dir = Path.home() / ".jav_nfo_generator"
-            cache_dir.mkdir(exist_ok=True)
+            cache_dir = Path(os.path.dirname(os.path.abspath(__file__)))
             cache_file = cache_dir / "translation_cache.json"
         
         self.cache_file = Path(cache_file)
