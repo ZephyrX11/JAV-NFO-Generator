@@ -47,30 +47,26 @@ class Settings:
 <movie>
     <title>{title}</title>
     <originaltitle>{original_title}</originaltitle>
-    <sorttitle>{sort_title}</sorttitle>
-    <set>{series}</set>
+    <sorttitle>{sort_title}</sorttitle>  
+    <id>{jav_id}</id>
+    <releasedate>{release_date}</releasedate>
     <year>{year}</year>
+    <runtime>{runtime}</runtime>
+    <mpaa>{mpaa}</mpaa>
+    <director>{director}</director>
+    <studio>{studio}</studio>
     <rating>{rating}</rating>
     <votes>{votes}</votes>
-    <releasedate>{release_date}</releasedate>
-    <runtime>{runtime}</runtime>
-    <country>{country}</country>
-    <mpaa>{mpaa}</mpaa>
-    <id>{jav_id}</id>
-    <uniqueid type="jav" default="true">{jav_id}</uniqueid>
-    <uniqueid type="content_id">{content_id}</uniqueid>
     <plot>{plot}</plot>
     <outline>{outline}</outline>
     <tagline>{tagline}</tagline>
-    <director>{director}</director>
-    <studio>{studio}</studio>
+    <set>{series}</set>
     <label>{label}</label>
 {genre_tags}
 {actor_tags}
-    <thumb aspect="poster">{poster}</thumb>
-    <thumb aspect="cover">{cover}</thumb>
+    <thumb>{poster}</thumb>
     <fanart>
-        <thumb>{fanart}</thumb>
+        <thumb>{cover}</thumb>
     </fanart>
 </movie>"""
 

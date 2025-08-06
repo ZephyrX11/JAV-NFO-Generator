@@ -169,7 +169,7 @@ class FanzaScraper(BaseScraper):
             fanart_urls = [img.get('largeImageUrl', '') for img in sample_images if img.get('largeImageUrl')]
             
             # Format duration
-            runtime = f"{duration // 60}:{duration % 60:02d}" if duration else "0:00"
+            runtime = f"{duration // 60}" if duration else "0:00"
             
             # Get content ID and JAV ID
             content_id = content.get('id', '').lower()
