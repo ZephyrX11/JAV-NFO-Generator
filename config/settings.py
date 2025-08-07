@@ -53,7 +53,7 @@ class Settings:
     <year>{year}</year>
     <runtime>{runtime}</runtime>
     <mpaa>{mpaa}</mpaa>
-    <director>{director}</director>
+{director_tags}
     <studio>{studio}</studio>
     <rating>{rating}</rating>
     <votes>{votes}</votes>

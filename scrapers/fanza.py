@@ -133,8 +133,7 @@ class FanzaScraper(BaseScraper):
                 release_date = release_date.split('T')[0]  # Get date part only
             
             # Extract directors
-            directors = content.get('directors', [])
-            director_names = [director.get('name', '') for director in directors if director.get('name')]
+            directors = [director["name"] for director in content.get('directors', [])]
             
             # Extract series
             series = content.get('series', {})
@@ -187,12 +186,11 @@ class FanzaScraper(BaseScraper):
                 'year': release_date.split('-')[0] if release_date else '',
                 'release_date': release_date,
                 'runtime': runtime,
-                'country': 'Japan',
                 'rating': rating,
                 'votes': votes,
                 'jav_id': jav_id,
                 'content_id': content_id,
-                'director': ', '.join(director_names) if director_names else '',
+                'directors': directors,
                 'studio': maker_name,
                 'label': label_name,
                 'series': series_name,

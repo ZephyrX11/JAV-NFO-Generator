@@ -217,7 +217,7 @@ class JAVNFOGenerator:
         print(f"{Fore.GREEN}Rating      :{Style.RESET_ALL} {metadata.get('rating', 'N/A')}")
         print(f"{Fore.GREEN}Votes       :{Style.RESET_ALL} {metadata.get('votes', 'N/A')}")
         
-        print(f"{Fore.GREEN}Director    :{Style.RESET_ALL} {metadata.get('director', 'N/A')}")
+        print(f"{Fore.GREEN}Directors    :{Style.RESET_ALL} {metadata.get('directors', 'N/A')}")
         print(f"{Fore.GREEN}Studio      :{Style.RESET_ALL} {metadata.get('studio', 'N/A')}")
         print(f"{Fore.GREEN}Label       :{Style.RESET_ALL} {metadata.get('label', 'N/A')}")
         print(f"{Fore.GREEN}Series      :{Style.RESET_ALL} {metadata.get('series', 'N/A')}")

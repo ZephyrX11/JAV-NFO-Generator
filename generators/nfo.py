@@ -52,19 +52,19 @@ class NFOGenerator:
         # Ensure all required fields are present
         formatted_metadata = self._ensure_required_fields(metadata)
 
-        # Use genre and actress arrays if available, otherwise fall back to string parsing
+        # Use director, genre and actress arrays
+        directors = metadata.get('directors', [])
         genres = metadata.get('genres', [])
         actresses = metadata.get('actresses', [])
 
-        # Generate genre tags from array
+        director_tags = '\n'.join([f"    <director>{director}</director>" for director in directors])
         genre_tags = '\n'.join([f"    <genre>{genre}</genre>" for genre in genres])
-
-        # Generate actor tags from actress array with individual thumb URLs
         actor_tags = '\n'.join([
             f"    <actor>\n        <name>{actress['name']}</name>\n        <role>actress</role>\n        <thumb>{actress.get('image', '')}</thumb>\n    </actor>"
             for actress in actresses
         ])
 
+        formatted_metadata['director_tags'] = director_tags
         formatted_metadata['genre_tags'] = genre_tags
         formatted_metadata['actor_tags'] = actor_tags
 
@@ -73,8 +73,6 @@ class NFOGenerator:
             return self.template.format(**formatted_metadata)
         except KeyError as e:
             print(f"Missing required field in template: {e}")
-            # Fallback to basic formatting
-            return self._format_basic_content(formatted_metadata)
     
     def _ensure_required_fields(self, metadata: Dict[str, Any]) -> Dict[str, str]:
         """
@@ -102,7 +100,7 @@ class NFOGenerator:
             'outline': '',
             'tagline': '',
             'series': '',
-            'director': '',
+            'directors': [],
             'studio': '',
             'label': '',
             'genres': [],
@@ -117,31 +115,13 @@ class NFOGenerator:
         for key, default_value in defaults.items():
             value = metadata.get(key, default_value)
             # Keep arrays as arrays, convert others to strings
-            if key in ['genres', 'actresses']:
+            if key in ['directors', 'genres', 'actresses']:
                 formatted[key] = value if isinstance(value, list) else default_value
             else:
                 formatted[key] = str(value) if value is not None else default_value
 
         return formatted
-    
-    def _format_basic_content(self, metadata: Dict[str, str]) -> str:
-        """
-        Format basic NFO content as fallback.
-        """
-        # Use genre and actress arrays if available, otherwise fall back to string parsing
-        genres = metadata.get('genres', [])
-        actresses = metadata.get('actresses', [])
 
-        # Build genre tags from array
-        genre_tags = '\n'.join([f"    <genre>{genre}</genre>" for genre in genres])
-
-        # Build actor tags from actress array with individual thumb URLs
-        actor_tags = '\n'.join([
-            f"    <actor>\n        <name>{actress['name']}</name>\n        <role>actress</role>\n        <thumb>{actress.get('image', '')}</thumb>\n    </actor>"
-            for actress in actresses
-        ])
-        return f"""<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<movie>\n    <title>{metadata.get('title', '')}</title>\n    <originaltitle>{metadata.get('original_title', '')}</originaltitle>\n    <year>{metadata.get('year', '')}</year>\n    <releasedate>{metadata.get('release_date', '')}</releasedate>\n    <runtime>{metadata.get('runtime', '')}</runtime>\n    <country>{metadata.get('country', 'Japan')}</country>\n    <mpaa>{metadata.get('rating', 'R')}</mpaa>\n    <id>{metadata.get('jav_id', '')}</id>\n    <uniqueid type=\"jav\" default=\"true\">{metadata.get('jav_id', '')}</uniqueid>\n    <uniqueid type=\"content_id\">{metadata.get('content_id', '')}</uniqueid>\n    <plot>{metadata.get('plot', '')}</plot>\n    <director>{metadata.get('director', '')}</director>\n    <studio>{metadata.get('studio', '')}</studio>\n    <label>{metadata.get('label', '')}</label>\n{genre_tags}\n{actor_tags}\n    <thumb aspect=\"poster\">{metadata.get('poster', '')}</thumb>\n    <fanart>\n        <thumb>{metadata.get('fanart', '')}</thumb>\n    </fanart>\n</movie>"""
-    
     def generate_batch(self, metadata_list: list, output_dir: str = ".") -> int:
         """
         Generate NFO files for multiple items.
