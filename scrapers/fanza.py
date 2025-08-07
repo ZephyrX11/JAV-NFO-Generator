@@ -121,7 +121,7 @@ class FanzaScraper(BaseScraper):
             content = raw_data.get('data', {}).get('ppvContent', {})
             if not content:
                 return {}
-            
+
             # Extract basic info
             title = content.get('title', '')
             description = content.get('description', '')
@@ -131,11 +131,6 @@ class FanzaScraper(BaseScraper):
             release_date = content.get('deliveryStartDate', '')
             if release_date:
                 release_date = release_date.split('T')[0]  # Get date part only
-            
-            # Extract actresses
-            actresses = content.get('actresses', [])
-            actress_names = [actress.get('name', '') for actress in actresses if actress.get('name')]
-            actress_images = [actress.get('imageUrl', '') for actress in actresses if actress.get('imageUrl')]
             
             # Extract directors
             directors = content.get('directors', [])
@@ -152,14 +147,16 @@ class FanzaScraper(BaseScraper):
             label = content.get('label', {})
             label_name = label.get('name', '') if label else ''
             
-            # Extract genres
-            genres = content.get('genres', [])
-            genre_names = [genre.get('name', '') for genre in genres if genre.get('name')]
-            
+            # Extract genres and actresses as arrays
+            genres = [genre["name"] for genre in content.get("genres", [])]
+            actresses = [
+                {"name": a.get("name", ""), "image": a.get("imageUrl", "")}
+                for a in content.get("actresses", [])
+            ]
             # Filter genres
-            genres_str = ', '.join(genre_names) if genre_names else ''
-            filtered_genres = PatternMatcher.filter_genres(genres_str)
-            
+            #genres_str = ', '.join(genre_names) if genre_names else ''
+            #filtered_genres = PatternMatcher.filter_genres(genres_str)
+
             # Extract images
             package_image = content.get('packageImage', {})
             cover_url = package_image.get('largeUrl', '') if package_image else ''
@@ -180,7 +177,6 @@ class FanzaScraper(BaseScraper):
             rating = review.get('average', '')  # Use float or format as string
             votes = review.get('total', '')     # Total number of votes
 
-            
             return {
                 'title': title,
                 'original_title': title,
@@ -196,13 +192,12 @@ class FanzaScraper(BaseScraper):
                 'votes': votes,
                 'jav_id': jav_id,
                 'content_id': content_id,
-                'actress': ', '.join(actress_names) if actress_names else '',
-                'actress_image': actress_images[0] if actress_images else '',
                 'director': ', '.join(director_names) if director_names else '',
                 'studio': maker_name,
                 'label': label_name,
                 'series': series_name,
-                'genres': filtered_genres,
+                'genres': genres,
+                'actresses': actresses,
                 'cover': cover_url,
                 'poster': poster_url,
                 'fanart': fanart_urls[0] if fanart_urls else '',
@@ -212,4 +207,4 @@ class FanzaScraper(BaseScraper):
             
         except Exception as e:
             print(f"Error formatting metadata: {e}")
-            return {} 
+            return {}

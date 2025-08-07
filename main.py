@@ -223,13 +223,12 @@ class JAVNFOGenerator:
         print(f"{Fore.GREEN}Series      :{Style.RESET_ALL} {metadata.get('series', 'N/A')}")
         
         print(f"{Fore.GREEN}Genres      :{Style.RESET_ALL} {metadata.get('genres', 'N/A')}")
-        print(f"{Fore.GREEN}Actress     :{Style.RESET_ALL} {metadata.get('actress', 'N/A')}")
+        print(f"{Fore.GREEN}Actresses   :{Style.RESET_ALL} {metadata.get('actresses', 'N/A')}")
         
         # Images
         print(f"{Fore.GREEN}Cover       :{Style.RESET_ALL} {metadata.get('cover', 'N/A')}")
         print(f"{Fore.GREEN}Poster      :{Style.RESET_ALL} {metadata.get('poster', 'N/A')}")
         print(f"{Fore.GREEN}Fanart      :{Style.RESET_ALL} {metadata.get('fanart', 'N/A')}")
-        print(f"{Fore.GREEN}Actress Image:{Style.RESET_ALL} {metadata.get('actress_image', 'N/A')}")
         
         print(f"{Fore.CYAN}================{Style.RESET_ALL}\n")
     

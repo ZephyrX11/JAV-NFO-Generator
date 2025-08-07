@@ -42,26 +42,32 @@ class NFOGenerator:
     def _format_content(self, metadata: Dict[str, Any]) -> str:
         """
         Format metadata into NFO content.
-        
+
         Args:
             metadata: Metadata dictionary
-            
+
         Returns:
             Formatted NFO content
         """
         # Ensure all required fields are present
         formatted_metadata = self._ensure_required_fields(metadata)
-        # Generate genre_tags and actor_tags for template
-        genres = [g.strip() for g in formatted_metadata.get('genres', '').split(',') if g.strip()]
-        actresses = [a.strip() for a in formatted_metadata.get('actress', '').split(',') if a.strip()]
-        actress_image = formatted_metadata.get('actress_image', '')
-        genre_tags = '\n'.join([f"    <genre>{g}</genre>" for g in genres])
+
+        # Use genre and actress arrays if available, otherwise fall back to string parsing
+        genres = metadata.get('genres', [])
+        actresses = metadata.get('actresses', [])
+
+        # Generate genre tags from array
+        genre_tags = '\n'.join([f"    <genre>{genre}</genre>" for genre in genres])
+
+        # Generate actor tags from actress array with individual thumb URLs
         actor_tags = '\n'.join([
-            f"    <actor>\n        <name>{a}</name>\n        <role>Actress</role>\n        <thumb>{actress_image if i == 0 else ''}</thumb>\n    </actor>"
-            for i, a in enumerate(actresses)
+            f"    <actor>\n        <name>{actress['name']}</name>\n        <role>actress</role>\n        <thumb>{actress.get('image', '')}</thumb>\n    </actor>"
+            for actress in actresses
         ])
+
         formatted_metadata['genre_tags'] = genre_tags
         formatted_metadata['actor_tags'] = actor_tags
+
         # Format the template
         try:
             return self.template.format(**formatted_metadata)
@@ -99,9 +105,8 @@ class NFOGenerator:
             'director': '',
             'studio': '',
             'label': '',
-            'genres': '',
-            'actress': '',
-            'actress_image': '',
+            'genres': [],
+            'actresses': [],
             'cover': '',
             'poster': '',
             'fanart': ''
@@ -111,24 +116,29 @@ class NFOGenerator:
         formatted = {}
         for key, default_value in defaults.items():
             value = metadata.get(key, default_value)
-            formatted[key] = str(value) if value is not None else default_value
-        
+            # Keep arrays as arrays, convert others to strings
+            if key in ['genres', 'actresses']:
+                formatted[key] = value if isinstance(value, list) else default_value
+            else:
+                formatted[key] = str(value) if value is not None else default_value
+
         return formatted
     
     def _format_basic_content(self, metadata: Dict[str, str]) -> str:
         """
         Format basic NFO content as fallback.
         """
-        # Split genres and actresses into lists
-        genres = [g.strip() for g in metadata.get('genres', '').split(',') if g.strip()]
-        actresses = [a.strip() for a in metadata.get('actress', '').split(',') if a.strip()]
-        actress_image = metadata.get('actress_image', '')
-        # Build genre tags
-        genre_tags = '\n'.join([f"    <genre>{g}</genre>" for g in genres])
-        # Build actor tags (use same image for all if only one image, else empty)
+        # Use genre and actress arrays if available, otherwise fall back to string parsing
+        genres = metadata.get('genres', [])
+        actresses = metadata.get('actresses', [])
+
+        # Build genre tags from array
+        genre_tags = '\n'.join([f"    <genre>{genre}</genre>" for genre in genres])
+
+        # Build actor tags from actress array with individual thumb URLs
         actor_tags = '\n'.join([
-            f"    <actor>\n        <name>{a}</name>\n        <role>Actress</role>\n        <thumb>{actress_image if i == 0 else ''}</thumb>\n    </actor>"
-            for i, a in enumerate(actresses)
+            f"    <actor>\n        <name>{actress['name']}</name>\n        <role>actress</role>\n        <thumb>{actress.get('image', '')}</thumb>\n    </actor>"
+            for actress in actresses
         ])
         return f"""<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<movie>\n    <title>{metadata.get('title', '')}</title>\n    <originaltitle>{metadata.get('original_title', '')}</originaltitle>\n    <year>{metadata.get('year', '')}</year>\n    <releasedate>{metadata.get('release_date', '')}</releasedate>\n    <runtime>{metadata.get('runtime', '')}</runtime>\n    <country>{metadata.get('country', 'Japan')}</country>\n    <mpaa>{metadata.get('rating', 'R')}</mpaa>\n    <id>{metadata.get('jav_id', '')}</id>\n    <uniqueid type=\"jav\" default=\"true\">{metadata.get('jav_id', '')}</uniqueid>\n    <uniqueid type=\"content_id\">{metadata.get('content_id', '')}</uniqueid>\n    <plot>{metadata.get('plot', '')}</plot>\n    <director>{metadata.get('director', '')}</director>\n    <studio>{metadata.get('studio', '')}</studio>\n    <label>{metadata.get('label', '')}</label>\n{genre_tags}\n{actor_tags}\n    <thumb aspect=\"poster\">{metadata.get('poster', '')}</thumb>\n    <fanart>\n        <thumb>{metadata.get('fanart', '')}</thumb>\n    </fanart>\n</movie>"""
     
