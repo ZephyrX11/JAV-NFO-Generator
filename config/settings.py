@@ -35,6 +35,21 @@ class Settings:
     # Fields to translate (comma-separated)
     TRANSLATION_FIELDS = os.getenv("TRANSLATION_FIELDS", "title,plot,genres,actresses,directors,studio,label,series").split(",")
     
+    # Subtitle Download Settings
+    SUBTITLE_DOWNLOAD_ENABLED = os.getenv("SUBTITLE_DOWNLOAD_ENABLED", "false").lower() == "true"
+    SUBTITLE_LANGUAGES = os.getenv("SUBTITLE_LANGUAGES", "en,ja").split(",")  # Preferred languages in order
+    SUBTITLE_FORMAT = os.getenv("SUBTITLE_FORMAT", "srt")  # srt, ass, vtt, etc.
+    SUBTITLE_OUTPUT_DIR = os.getenv("SUBTITLE_OUTPUT_DIR", "")  # Empty for same directory as video
+    SUBTITLE_FILENAME_TEMPLATE = os.getenv("SUBTITLE_FILENAME_TEMPLATE", "<ID>.<LANG>.<EXT>")
+    
+    # Image Download Settings
+    IMAGE_DOWNLOAD_ENABLED = os.getenv("IMAGE_DOWNLOAD_ENABLED", "true").lower() == "true"
+    IMAGE_DOWNLOAD_COVER = os.getenv("IMAGE_DOWNLOAD_COVER", "true").lower() == "true"
+    IMAGE_DOWNLOAD_POSTER = os.getenv("IMAGE_DOWNLOAD_POSTER", "true").lower() == "true"
+    IMAGE_FILENAME_COVER = os.getenv("IMAGE_FILENAME_COVER", "fanart")  # fanart.jpg
+    IMAGE_FILENAME_POSTER = os.getenv("IMAGE_FILENAME_POSTER", "folder")  # folder.jpg
+    IMAGE_DOWNLOAD_TIMEOUT = int(os.getenv("IMAGE_DOWNLOAD_TIMEOUT", "15"))
+    
     # Genres to skip (comma-separated)
     SKIP_GENRES = os.getenv("SKIP_GENRES", "4K,ハイビジョン,独占配信").split(",")
     

@@ -1,7 +1,12 @@
-requests>=2.31.0
-click>=8.1.0
-beautifulsoup4>=4.12.0
-lxml>=4.9.0
-python-dotenv>=1.0.0
-colorama>=0.4.6
-tqdm>=4.65.0 
+# Core dependencies
+requests>=2.31.0          # HTTP requests for API calls and downloads
+click>=8.1.0              # CLI framework
+python-dotenv>=1.0.0      # Environment variable management
+colorama>=0.4.6           # Cross-platform colored terminal output
+tqdm>=4.65.0             # Progress bars for batch operations
+
+# Optional dependencies (uncomment if needed)
+# beautifulsoup4>=4.12.0  # HTML parsing (for future web scraping)
+# lxml>=4.9.0            # XML/HTML parser backend
+# aiohttp>=3.8.0         # Async HTTP client (for performance improvements)
+# asyncio                 # Built-in, no need to install 

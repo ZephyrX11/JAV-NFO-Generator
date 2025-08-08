@@ -97,29 +97,44 @@ class PatternMatcher:
         return ext in settings.VIDEO_EXTENSIONS
     
     @staticmethod
-    def find_video_files(directory: str = ".") -> List[Tuple[str, str]]:
+    def find_video_files(directory: str = ".", max_depth: int = 0) -> List[Tuple[str, str]]:
         """
         Find all video files in directory with their JAV codes.
         
         Args:
             directory: Directory to search in
+            max_depth: Maximum depth to search (0 = current directory only)
             
         Returns:
             List of tuples (filename, jav_code)
         """
         video_files = []
         
-        try:
-            for filename in os.listdir(directory):
-                if PatternMatcher.is_video_file(filename):
-                    jav_code = PatternMatcher.extract_jav_code(filename)
-                    if jav_code:
-                        video_files.append((filename, jav_code))
-        except FileNotFoundError:
-            print(f"Directory {directory} not found.")
-        except PermissionError:
-            print(f"Permission denied accessing directory {directory}.")
-            
+        def scan_directory(current_dir: str, current_depth: int):
+            """Recursively scan directory for video files."""
+            try:
+                for item in os.listdir(current_dir):
+                    item_path = os.path.join(current_dir, item)
+                    
+                    # Check if it's a video file
+                    if os.path.isfile(item_path) and PatternMatcher.is_video_file(item):
+                        jav_code = PatternMatcher.extract_jav_code(item)
+                        if jav_code:
+                            # Store relative path from original directory
+                            rel_path = os.path.relpath(item_path, directory)
+                            video_files.append((rel_path, jav_code))
+                    
+                    # Recursively scan subdirectories if depth allows
+                    elif os.path.isdir(item_path) and current_depth < max_depth:
+                        scan_directory(item_path, current_depth + 1)
+                        
+            except FileNotFoundError:
+                print(f"Directory {current_dir} not found.")
+            except PermissionError:
+                print(f"Permission denied accessing directory {current_dir}.")
+        
+        # Start scanning from the specified directory
+        scan_directory(directory, 0)
         return video_files
     
     @staticmethod

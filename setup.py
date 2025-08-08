@@ -9,26 +9,46 @@ import os
 # Get the directory containing this file
 here = os.path.abspath(os.path.dirname(__file__))
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+def read_file(filename):
+    """Read file contents."""
+    with open(filename, "r", encoding="utf-8") as fh:
+        return fh.read()
 
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
+def read_requirements(filename):
+    """Read requirements from file."""
+    requirements = []
+    with open(filename, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                requirements.append(line)
+    return requirements
+
+# Read files
+long_description = read_file("README.md")
+requirements = read_requirements("requirements.txt")
 
 setup(
     name="jav-nfo-generator",
     version="1.0.0",
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="A CLI tool for scraping JAV metadata and generating .nfo files",
+    author="JAV NFO Generator Team",
+    author_email="contact@javnfo.com",
+    description="A powerful CLI tool for scraping JAV metadata and generating .nfo files",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/python_jav_nfo_generator",
+    url="https://github.com/ZephyrX11/JAV-NFO-Generator",
+    project_urls={
+        "Bug Reports": "https://github.com/ZephyrX11/JAV-NFO-Generator/issues",
+        "Source": "https://github.com/ZephyrX11/JAV-NFO-Generator",
+        "Documentation": "https://github.com/ZephyrX11/JAV-NFO-Generator#readme",
+    },
     packages=find_packages(),
-    py_modules=["main"],  # Include main.py as a module
+    py_modules=["main"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: End Users/Desktop",
+        "Topic :: Multimedia :: Video",
+        "Topic :: Software Development :: Libraries :: Python Modules",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
@@ -37,6 +57,9 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Environment :: Console",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Text Processing :: Markup :: XML",
     ],
     python_requires=">=3.8",
     install_requires=requirements,
@@ -44,8 +67,11 @@ setup(
         "console_scripts": [
             "jav-nfo=main:cli",
             "javnfo=main:cli",
+            "javnfo-generator=main:cli",
         ],
     },
     include_package_data=True,
     zip_safe=False,
+    keywords="jav nfo metadata scraper cli video media",
+    platforms=["any"],
 ) 
