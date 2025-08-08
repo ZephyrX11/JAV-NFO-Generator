@@ -61,10 +61,10 @@ class NFOGenerator:
         genres = metadata.get('genres', [])
         actresses = metadata.get('actresses', [])
 
-        director_tags = '\n\t'.join([f"<director>{director}</director>" for director in directors])
-        genre_tags = '\n\t'.join([f"<genre>{genre}</genre>" for genre in genres])
-        actor_tags = '\n\t'.join([
-            f"<actor>\n\t\t<name>{actress['name']}</name>\n\t\t<role>actress</role>\n\t\t<thumb>{actress.get('image', '')}</thumb>\n\t</actor>"
+        director_tags = '\n    '.join([f"<director>{director}</director>" for director in directors])
+        genre_tags = '\n    '.join([f"<genre>{genre}</genre>" for genre in genres])
+        actor_tags = '\n    '.join([
+            f"<actor>\n        <name>{actress['name']}</name>\n        <role>actress</role>\n        <thumb>{actress.get('image', '')}</thumb>\n    </actor>"
             for actress in actresses
         ])
 
