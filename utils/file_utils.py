@@ -43,7 +43,7 @@ class FileUtils:
                 return str(value) if value else tag
             output_dir = re.sub(r"<([A-Z_]+)>", tag_replacer, output_dir)
         # Sanitize output_dir to be a valid folder name
-        output_dir = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', output_dir).strip() or "."
+        output_dir = re.sub(r'[<>:"\\|?*\x00-\x1F]', '_', output_dir).strip() or "."
 
         # Use the output video name (without extension) as the NFO base name
         video_base = FileUtils.get_output_video_name(filename, output_dir, metadata)

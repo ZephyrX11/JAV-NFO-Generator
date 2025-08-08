@@ -20,8 +20,8 @@ class Settings:
     
     # Output directory template with tags (user can set this)
     # Available tags: <YEAR>, <ID>, <STUDIO>, <TITLE> 
-    OUTPUT_DIR_TEMPLATE = os.getenv("OUTPUT_DIR_TEMPLATE", "[<ID>] <TITLE> (<YEAR>)")
-    
+    OUTPUT_DIR_TEMPLATE = os.getenv("OUTPUT_DIR_TEMPLATE", "<YEAR>/<ID>")
+
     # Video file name template
     OUTPUT_VIDEO_NAME_TEMPLATE = os.getenv("OUTPUT_VIDEO_NAME_TEMPLATE", "<ID><EXT>")
     
