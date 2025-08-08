@@ -49,7 +49,7 @@ class Settings:
     # NFO Template Settings
     NFO_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <movie>
-    <title>{title}</title>
+    <title>[{id}] {title}</title>
     <originaltitle>{original_title}</originaltitle>
     <sorttitle>{sort_title}</sorttitle>  
     <id>{id}</id>
@@ -57,7 +57,7 @@ class Settings:
     <year>{year}</year>
     <runtime>{runtime}</runtime>
     <mpaa>{mpaa}</mpaa>
-{director_tags}
+    {director_tags}
     <studio>{studio}</studio>
     <rating>{rating}</rating>
     <votes>{votes}</votes>
@@ -66,8 +66,8 @@ class Settings:
     <tagline>{tagline}</tagline>
     <set>{series}</set>
     <label>{label}</label>
-{genre_tags}
-{actor_tags}
+    {genre_tags}
+    {actor_tags}
     <thumb>{poster}</thumb>
     <fanart>
         <thumb>{cover}</thumb>

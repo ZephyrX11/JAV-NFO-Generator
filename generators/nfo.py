@@ -52,15 +52,19 @@ class NFOGenerator:
         # Ensure all required fields are present
         formatted_metadata = self._ensure_required_fields(metadata)
 
+        plot = metadata.get('plot', '')
+        plot = plot.replace('<br>', '\n')
+        formatted_metadata['plot'] = plot
+
         # Use director, genre and actress arrays
         directors = metadata.get('directors', [])
         genres = metadata.get('genres', [])
         actresses = metadata.get('actresses', [])
 
-        director_tags = '\n'.join([f"    <director>{director}</director>" for director in directors])
-        genre_tags = '\n'.join([f"    <genre>{genre}</genre>" for genre in genres])
-        actor_tags = '\n'.join([
-            f"    <actor>\n        <name>{actress['name']}</name>\n        <role>actress</role>\n        <thumb>{actress.get('image', '')}</thumb>\n    </actor>"
+        director_tags = '\n\t'.join([f"<director>{director}</director>" for director in directors])
+        genre_tags = '\n\t'.join([f"<genre>{genre}</genre>" for genre in genres])
+        actor_tags = '\n\t'.join([
+            f"<actor>\n\t\t<name>{actress['name']}</name>\n\t\t<role>actress</role>\n\t\t<thumb>{actress.get('image', '')}</thumb>\n\t</actor>"
             for actress in actresses
         ])
 
@@ -139,4 +143,4 @@ class NFOGenerator:
             if self.generate_nfo(metadata, filename, output_dir):
                 success_count += 1
         
-        return success_count 
+        return success_count
