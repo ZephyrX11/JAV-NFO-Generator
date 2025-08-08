@@ -10,6 +10,7 @@ import click
 from colorama import init, Fore, Style
 from tqdm import tqdm
 import requests
+import shutil
 
 # Initialize colorama for cross-platform colored output
 init()
@@ -160,6 +161,17 @@ class JAVNFOGenerator:
                                     print(f"Failed to download {img_type} image: {url}")
                             except Exception as e:
                                 print(f"Error downloading {img_type} image: {e}")
+
+                    # --- Move video file to output_dir if NFO was generated ---
+                    # Use the same tag replacement as output_dir for the video file name
+                    video_output_name = FileUtils.get_output_video_name(filename, output_dir, best_result)
+                    video_output_path = os.path.join(os.path.dirname(FileUtils.get_output_path(filename, output_dir, best_result)), video_output_name)
+                    try:
+                        shutil.move(os.path.join(directory, filename), video_output_path)
+                        print(f"Moved video file to: {video_output_path}")
+                    except Exception as e:
+                        print(f"Failed to move video file: {e}")
+
                     success_count += 1
                     print(f"{Fore.GREEN}Successfully generated NFO for {filename}{Style.RESET_ALL}")
                 else:

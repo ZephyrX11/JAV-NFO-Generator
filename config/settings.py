@@ -22,6 +22,9 @@ class Settings:
     # Available tags: <YEAR>, <ID>, <STUDIO>, <TITLE> 
     OUTPUT_DIR_TEMPLATE = os.getenv("OUTPUT_DIR_TEMPLATE", "[<ID>] <TITLE> (<YEAR>)")
     
+    # Video file name template
+    OUTPUT_VIDEO_NAME_TEMPLATE = os.getenv("OUTPUT_VIDEO_NAME_TEMPLATE", "<ID><EXT>")
+    
     # Translation Settings
     TRANSLATION_ENABLED = os.getenv("TRANSLATION_ENABLED", "false").lower() == "true"
     TRANSLATION_API_KEY = os.getenv("TRANSLATION_API_KEY", "")
@@ -72,4 +75,4 @@ class Settings:
 </movie>"""
 
 # Global settings instance
-settings = Settings() 
+settings = Settings()

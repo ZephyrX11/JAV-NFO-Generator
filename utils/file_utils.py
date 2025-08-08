@@ -30,9 +30,6 @@ class FileUtils:
         """
         Generate output path for NFO file, supporting tag replacement.
         """
-        # Remove video extension and add .nfo
-        base_name = os.path.splitext(filename)[0]
-        nfo_filename = f"{base_name}.nfo"
         # Use output_dir or settings.OUTPUT_DIR_TEMPLATE
         if not output_dir or output_dir == ".":
             output_dir = getattr(settings, "OUTPUT_DIR_TEMPLATE", "<ID>")
@@ -41,14 +38,18 @@ class FileUtils:
             def tag_replacer(match):
                 tag = match.group(1)
                 value = metadata.get(tag.lower(), "")
-                # If the tag is 'title', shorten it to avoid long filenames
                 if tag.lower() == "title" and isinstance(value, str) and len(value) > 50:
                     value = value[:50].rstrip() + "..."
                 return str(value) if value else tag
             output_dir = re.sub(r"<([A-Z_]+)>", tag_replacer, output_dir)
         # Sanitize output_dir to be a valid folder name
         output_dir = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', output_dir).strip() or "."
-        
+
+        # Use the output video name (without extension) as the NFO base name
+        video_base = FileUtils.get_output_video_name(filename, output_dir, metadata)
+        nfo_base = os.path.splitext(video_base)[0]
+        nfo_filename = f"{nfo_base}.nfo"
+
         return os.path.join(output_dir, nfo_filename)
     
     @staticmethod
@@ -144,3 +145,26 @@ class FileUtils:
             return os.path.relpath(filepath, base_dir)
         except ValueError:
             return filepath
+    
+    @staticmethod
+    def get_output_video_name(filename: str, output_dir: str = ".", metadata: dict = None) -> str:
+        """
+        Generate output video file name, supporting tag replacement.
+        """
+        ext = os.path.splitext(filename)[1]
+        video_name_template = getattr(settings, "OUTPUT_VIDEO_NAME_TEMPLATE", "<ID><EXT>")
+        if metadata:
+            def tag_replacer(match):
+                tag = match.group(1)
+                value = metadata.get(tag.lower(), "")
+                if tag.lower() == "title" and isinstance(value, str) and len(value) > 50:
+                    value = value[:50].rstrip() + "..."
+                if tag.lower() == "ext":
+                    value = ext
+                return str(value) if value else tag
+            video_name = re.sub(r"<([A-Z_]+)>", tag_replacer, video_name_template)
+        else:
+            video_name = os.path.basename(filename)
+        # Sanitize filename
+        video_name = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', video_name).strip() or "video" + ext
+        return video_name
