@@ -146,60 +146,57 @@ class Translator:
         for field in settings.TRANSLATION_FIELDS:
             field = field.strip()
             if field in metadata and metadata[field]:
-                original_text = metadata[field]
+                original_value = metadata[field]
+
+                # Handle array fields (directors, genres, actresses)
                 
-                # Handle comma-separated fields (genres, actress)
-                if field in ['genres', 'actress'] and ',' in original_text:
-                    translated_text = self._translate_comma_separated(original_text, field, force_enable=force_enable)
+                if field in ['genres', 'directors'] and isinstance(original_value, list):
+                    translated_value = self._translate_array(original_value, field)
+                elif field in ['actresses', 'actresses_array'] and isinstance(original_value, list):
+                    translated_value = self._translate_actress_array(original_value)
                 else:
-                    # Use field-specific caching for single values
-                    translated_text = self.translate_text(original_text, field)
+                    translated_value = self.translate_text(original_value, field)
                 
-                if translated_text and translated_text != original_text:
-                    translated_metadata[field] = translated_text
-                    print(f"Translated {field}: {original_text[:50]}... → {translated_text[:50]}...")
+                if translated_value and translated_value != original_value:
+                    translated_metadata[field] = translated_value
+                    print(f"Translated {field}: {str(original_value)[:50]}... → {str(translated_value)[:50]}...")
                 
                 # Rate limiting for API calls (only if not cached)
-                if not translation_cache.get_cached_translation(original_text, field):
+                if isinstance(original_value, str) and not translation_cache.get_cached_translation(original_value, field):
                     time.sleep(0.5)
         
         return translated_metadata
-    
-    def _translate_comma_separated(self, text: str, field_type: str, force_enable: bool = False) -> str:
+
+    def _translate_array(self, items: list, field_type: str) -> list:
         """
-        Translate comma-separated values individually with caching.
+        Translate a list of strings (e.g., genres).
         """
-        if not text or not text.strip():
-            return text
-        # Split by comma and clean up
-        items = [item.strip() for item in text.split(',') if item.strip()]
         translated_items = []
         for item in items:
-            if field_type == 'actress' and (settings.TRANSLATION_ENABLED or force_enable):
-                # Translate the full name as a single string
-                translated_item = self.translate_text(item, field_type) or item
-                # After translation, split and switch first and last part if possible
-                parts = translated_item.split()
-                if len(parts) == 2:
-                    item = f"{parts[1]} {parts[0]}"
-                elif len(parts) > 2:
-                    item = f"{parts[-1]} {' '.join(parts[1:-1])} {parts[0]}"
-                else:
-                    item = translated_item
-                translated_items.append(item)
+            cached = translation_cache.get_cached_translation(item, field_type)
+            if cached:
+                translated_items.append(cached)
                 continue
-            # Not actress or translation not enabled, normal translation
-            cached_translation = translation_cache.get_cached_translation(item, field_type)
-            if cached_translation:
-                translated_items.append(cached_translation)
-                continue
-            translated_item = self.translate_text(item, field_type)
-            if translated_item and translated_item != item:
-                translated_items.append(translated_item)
+            translated = self.translate_text(item, field_type)
+            translated_items.append(translated if translated else item)
+        return translated_items
+
+    def _translate_actress_array(self, actresses: list) -> list:
+        """
+        Translate a list of actress dicts (with 'name' and 'image').
+        """
+        translated_list = []
+        for actress in actresses:
+            name = actress.get("name", "")
+            image = actress.get("image", "")
+            cached = translation_cache.get_cached_translation(name, "actress")
+            if cached:
+                translated_name = cached
             else:
-                translated_items.append(item)
-        return ', '.join(translated_items)
-    
+                translated_name = self.translate_text(name, "actress") or name
+            translated_list.append({"name": translated_name, "image": image})
+        return translated_list
+
     def is_enabled(self) -> bool:
         """
         Check if translation is enabled.
@@ -216,4 +213,4 @@ class Translator:
         Returns:
             List of supported services
         """
-        return ["google", "deepl"] 
+        return ["google", "deepl"]

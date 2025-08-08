@@ -29,7 +29,7 @@ class Settings:
     TRANSLATION_SOURCE_LANG = os.getenv("TRANSLATION_SOURCE_LANG", "ja")
     
     # Fields to translate (comma-separated)
-    TRANSLATION_FIELDS = os.getenv("TRANSLATION_FIELDS", "title,plot,genres,actress,director,studio,label,series").split(",")
+    TRANSLATION_FIELDS = os.getenv("TRANSLATION_FIELDS", "title,plot,genres,actresses,directors,studio,label,series").split(",")
     
     # Genres to skip (comma-separated)
     SKIP_GENRES = os.getenv("SKIP_GENRES", "4K,ハイビジョン,独占配信").split(",")

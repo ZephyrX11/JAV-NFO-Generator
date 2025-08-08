@@ -43,7 +43,7 @@ class TranslationCache:
         return {
             'genres': {},
             'actress': {},
-            'director': {},
+            'directors': {},
             'studio': {},
             'label': {},
             'series': {},
