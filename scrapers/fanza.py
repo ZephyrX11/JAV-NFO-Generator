@@ -188,7 +188,7 @@ class FanzaScraper(BaseScraper):
                 'runtime': runtime,
                 'rating': rating,
                 'votes': votes,
-                'jav_id': jav_id,
+                'id': jav_id,
                 'content_id': content_id,
                 'directors': directors,
                 'studio': maker_name,

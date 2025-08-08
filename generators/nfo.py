@@ -88,7 +88,7 @@ class NFOGenerator:
             'title': '',
             'original_title': '',
             'sort_title': '',
-            'jav_id': '',
+            'id': '',
             'content_id': '',
             'release_date': '',
             'year': '',

@@ -206,29 +206,29 @@ class JAVNFOGenerator:
         print(f"\n{Fore.CYAN}=== Metadata ==={Style.RESET_ALL}")
         
         # Basic info
-        print(f"{Fore.GREEN}Id          :{Style.RESET_ALL} {metadata.get('jav_id', 'N/A')}")
-        print(f"{Fore.GREEN}ContentId   :{Style.RESET_ALL} {metadata.get('content_id', 'N/A')}")
-        print(f"{Fore.GREEN}Title       :{Style.RESET_ALL} {metadata.get('title', 'N/A')}")
+        print(f"{Fore.GREEN}Id           :{Style.RESET_ALL} {metadata.get('id', 'N/A')}")
+        print(f"{Fore.GREEN}ContentId    :{Style.RESET_ALL} {metadata.get('content_id', 'N/A')}")
+        print(f"{Fore.GREEN}Title        :{Style.RESET_ALL} {metadata.get('title', 'N/A')}")
         print(f"{Fore.GREEN}OriginalTitle:{Style.RESET_ALL} {metadata.get('original_title', 'N/A')}")
-        print(f"{Fore.GREEN}Description :{Style.RESET_ALL} {metadata.get('plot', 'N/A')}")
-        print(f"{Fore.GREEN}ReleaseYear :{Style.RESET_ALL} {metadata.get('year', 'N/A')}")
-        print(f"{Fore.GREEN}ReleaseDate :{Style.RESET_ALL} {metadata.get('release_date', 'N/A')}")
-        print(f"{Fore.GREEN}Runtime     :{Style.RESET_ALL} {metadata.get('runtime', 'N/A')}")
-        print(f"{Fore.GREEN}Rating      :{Style.RESET_ALL} {metadata.get('rating', 'N/A')}")
-        print(f"{Fore.GREEN}Votes       :{Style.RESET_ALL} {metadata.get('votes', 'N/A')}")
+        print(f"{Fore.GREEN}Description  :{Style.RESET_ALL} {metadata.get('plot', 'N/A')}")
+        print(f"{Fore.GREEN}ReleaseYear  :{Style.RESET_ALL} {metadata.get('year', 'N/A')}")
+        print(f"{Fore.GREEN}ReleaseDate  :{Style.RESET_ALL} {metadata.get('release_date', 'N/A')}")
+        print(f"{Fore.GREEN}Runtime      :{Style.RESET_ALL} {metadata.get('runtime', 'N/A')}")
+        print(f"{Fore.GREEN}Rating       :{Style.RESET_ALL} {metadata.get('rating', 'N/A')}")
+        print(f"{Fore.GREEN}Votes        :{Style.RESET_ALL} {metadata.get('votes', 'N/A')}")
         
         print(f"{Fore.GREEN}Directors    :{Style.RESET_ALL} {metadata.get('directors', 'N/A')}")
-        print(f"{Fore.GREEN}Studio      :{Style.RESET_ALL} {metadata.get('studio', 'N/A')}")
-        print(f"{Fore.GREEN}Label       :{Style.RESET_ALL} {metadata.get('label', 'N/A')}")
-        print(f"{Fore.GREEN}Series      :{Style.RESET_ALL} {metadata.get('series', 'N/A')}")
+        print(f"{Fore.GREEN}Studio       :{Style.RESET_ALL} {metadata.get('studio', 'N/A')}")
+        print(f"{Fore.GREEN}Label        :{Style.RESET_ALL} {metadata.get('label', 'N/A')}")
+        print(f"{Fore.GREEN}Series       :{Style.RESET_ALL} {metadata.get('series', 'N/A')}")
         
-        print(f"{Fore.GREEN}Genres      :{Style.RESET_ALL} {metadata.get('genres', 'N/A')}")
-        print(f"{Fore.GREEN}Actresses   :{Style.RESET_ALL} {metadata.get('actresses', 'N/A')}")
+        print(f"{Fore.GREEN}Genres       :{Style.RESET_ALL} {metadata.get('genres', 'N/A')}")
+        print(f"{Fore.GREEN}Actresses    :{Style.RESET_ALL} {metadata.get('actresses', 'N/A')}")
         
         # Images
-        print(f"{Fore.GREEN}Cover       :{Style.RESET_ALL} {metadata.get('cover', 'N/A')}")
-        print(f"{Fore.GREEN}Poster      :{Style.RESET_ALL} {metadata.get('poster', 'N/A')}")
-        print(f"{Fore.GREEN}Fanart      :{Style.RESET_ALL} {metadata.get('fanart', 'N/A')}")
+        print(f"{Fore.GREEN}Cover        :{Style.RESET_ALL} {metadata.get('cover', 'N/A')}")
+        print(f"{Fore.GREEN}Poster       :{Style.RESET_ALL} {metadata.get('poster', 'N/A')}")
+        print(f"{Fore.GREEN}Fanart       :{Style.RESET_ALL} {metadata.get('fanart', 'N/A')}")
         
         print(f"{Fore.CYAN}================{Style.RESET_ALL}\n")
     

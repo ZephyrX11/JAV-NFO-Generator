@@ -35,17 +35,20 @@ class FileUtils:
         nfo_filename = f"{base_name}.nfo"
         # Use output_dir or settings.OUTPUT_DIR_TEMPLATE
         if not output_dir or output_dir == ".":
-            output_dir = getattr(settings, "OUTPUT_DIR_TEMPLATE", "./nfo_files/<YEAR>/<ID>")
+            output_dir = getattr(settings, "OUTPUT_DIR_TEMPLATE", "<ID>")
         # Replace tags in output_dir if metadata is provided
         if metadata:
             def tag_replacer(match):
                 tag = match.group(1)
                 value = metadata.get(tag.lower(), "")
+                # If the tag is 'title', shorten it to avoid long filenames
+                if tag.lower() == "title" and isinstance(value, str) and len(value) > 50:
+                    value = value[:50].rstrip() + "..."
                 return str(value) if value else tag
             output_dir = re.sub(r"<([A-Z_]+)>", tag_replacer, output_dir)
-        # Default to current dir if still empty
-        if not output_dir:
-            output_dir = "."
+        # Sanitize output_dir to be a valid folder name
+        output_dir = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', output_dir).strip() or "."
+        
         return os.path.join(output_dir, nfo_filename)
     
     @staticmethod
@@ -140,4 +143,4 @@ class FileUtils:
         try:
             return os.path.relpath(filepath, base_dir)
         except ValueError:
-            return filepath 
+            return filepath

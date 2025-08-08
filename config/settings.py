@@ -19,7 +19,8 @@ class Settings:
     DEFAULT_OUTPUT_DIR = os.getenv("DEFAULT_OUTPUT_DIR", "")
     
     # Output directory template with tags (user can set this)
-    OUTPUT_DIR_TEMPLATE = os.getenv("OUTPUT_DIR_TEMPLATE", "<YEAR>/<ID>")
+    # Available tags: <YEAR>, <ID>, <STUDIO>, <TITLE> 
+    OUTPUT_DIR_TEMPLATE = os.getenv("OUTPUT_DIR_TEMPLATE", "[<ID>] <TITLE> (<YEAR>)")
     
     # Translation Settings
     TRANSLATION_ENABLED = os.getenv("TRANSLATION_ENABLED", "false").lower() == "true"
@@ -48,7 +49,7 @@ class Settings:
     <title>{title}</title>
     <originaltitle>{original_title}</originaltitle>
     <sorttitle>{sort_title}</sorttitle>  
-    <id>{jav_id}</id>
+    <id>{id}</id>
     <releasedate>{release_date}</releasedate>
     <year>{year}</year>
     <runtime>{runtime}</runtime>
