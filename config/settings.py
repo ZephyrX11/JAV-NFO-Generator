@@ -59,7 +59,7 @@ class Settings:
     
     # Multi-Scraper Settings
     ENABLED_SCRAPERS = ['fanza', 'r18dev']
-    
+
     # R18.dev Language Settings
     R18DEV_LANGUAGE = os.getenv("R18DEV_LANGUAGE", "en")  # "en" | "jp"
     
