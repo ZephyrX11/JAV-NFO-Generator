@@ -1,6 +1,7 @@
 from typing import Dict, Any, Optional
 from config.settings import settings
 from utils.file_utils import FileUtils
+import re
 
 class NFOGenerator:
     """Generator for NFO files."""
@@ -54,6 +55,7 @@ class NFOGenerator:
 
         plot = metadata.get('plot', '')
         plot = plot.replace('<br>', '\n')
+        plot = re.sub(r"<[^>]+>", "", plot)
         formatted_metadata['plot'] = plot
 
         # Use director, genre and actress arrays

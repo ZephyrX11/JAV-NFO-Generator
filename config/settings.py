@@ -36,7 +36,7 @@ class Settings:
     TRANSLATION_FIELDS = os.getenv("TRANSLATION_FIELDS", "title,plot,genres,actresses,directors,studio,label,series").split(",")
     
     # Subtitle Download Settings
-    SUBTITLE_DOWNLOAD_ENABLED = os.getenv("SUBTITLE_DOWNLOAD_ENABLED", "false").lower() == "true"
+    SUBTITLE_DOWNLOAD_ENABLED = os.getenv("SUBTITLE_DOWNLOAD_ENABLED", "true").lower() == "true"
     SUBTITLE_LANGUAGES = os.getenv("SUBTITLE_LANGUAGES", "en").split(",")  # Preferred languages in order
     SUBTITLE_FORMAT = os.getenv("SUBTITLE_FORMAT", "srt")  # srt, ass, vtt, etc.
     SUBTITLE_OUTPUT_DIR = os.getenv("SUBTITLE_OUTPUT_DIR", "")  # Empty for same directory as video

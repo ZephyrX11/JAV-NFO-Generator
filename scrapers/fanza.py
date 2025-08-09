@@ -169,7 +169,7 @@ class FanzaScraper(BaseScraper):
             
             # Get content ID and JAV ID
             content_id = content.get('id', '').lower()
-            jav_id = PatternMatcher.content_id_to_jav_code(content_id)
+            jav_id = content.get('makerContentId', '')
             
             # Extract rating info
             review = raw_data.get('data', {}).get('reviewSummary', {})
