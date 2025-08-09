@@ -1,12 +1,14 @@
 from typing import Dict, List, Optional, Type
 from .base import BaseScraper
 from .fanza import FanzaScraper
+from .r18dev import R18DevScraper
 
 class ScraperFactory:
     """Factory class for managing scrapers."""
     
     _scrapers: Dict[str, Type[BaseScraper]] = {
         'fanza': FanzaScraper,
+        'r18dev': R18DevScraper,
     }
     
     @classmethod

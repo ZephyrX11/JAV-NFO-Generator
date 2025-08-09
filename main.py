@@ -26,12 +26,14 @@ from utils.file_utils import FileUtils
 from utils.translator import Translator
 from utils.cache import translation_cache
 from utils.subtitle_downloader import SubtitleDownloader
+from utils.multi_scraper import MultiScraperManager
 
 class JAVNFOGenerator:
     """Main application class for JAV NFO Generator."""
     
     def __init__(self):
         self.scraper_factory = ScraperFactory()
+        self.multi_scraper = MultiScraperManager()
         self.nfo_generator = NFOGenerator()
         self.translator = Translator()
         self.subtitle_downloader = SubtitleDownloader()
@@ -57,11 +59,8 @@ class JAVNFOGenerator:
         
         print(f"{Fore.CYAN}Searching for JAV ID: {jav_id}{Style.RESET_ALL}")
         
-        # Search all scrapers
-        results = self.scraper_factory.search_all(jav_id)
-        
-        # Find the best result
-        best_result = self._get_best_result(results)
+        # Search using multi-scraper system with priorities
+        best_result = self.multi_scraper.search_with_priority(jav_id)
         
         if best_result:
             print(f"{Fore.GREEN}Found metadata for {jav_id}{Style.RESET_ALL}")
@@ -128,9 +127,8 @@ class JAVNFOGenerator:
                 print(f"{Fore.YELLOW}NFO file already exists: {nfo_path}{Style.RESET_ALL}")
                 continue
             
-            # Search for metadata
-            results = self.scraper_factory.search_all(jav_code)
-            best_result = self._get_best_result(results)
+            # Search for metadata using multi-scraper system
+            best_result = self.multi_scraper.search_with_priority(jav_code)
             
             if best_result:
                 # Apply translation if requested

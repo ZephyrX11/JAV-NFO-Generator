@@ -57,6 +57,30 @@ class Settings:
     CACHE_ENABLED = os.getenv("CACHE_ENABLED", "true").lower() == "true"
     CACHE_FILE = os.getenv("CACHE_FILE", "")  # Empty for default location
     
+    # Multi-Scraper Settings
+    ENABLED_SCRAPERS = ['fanza', 'r18dev']
+    
+    # R18.dev Language Settings
+    R18DEV_LANGUAGE = os.getenv("R18DEV_LANGUAGE", "en")  # "en" | "jp"
+    
+    # Field Priority Settings - which scraper to prefer for each field
+    # Format: list of scrapers in order of preference
+    FIELD_PRIORITY_TITLE = ['r18dev', 'fanza']
+    FIELD_PRIORITY_ACTRESSES = ['r18dev', 'fanza']
+    FIELD_PRIORITY_DIRECTORS = ['r18dev', 'fanza']
+    FIELD_PRIORITY_CATEGORIES = ['r18dev', 'fanza']
+    FIELD_PRIORITY_STUDIO = ['r18dev', 'fanza']
+    FIELD_PRIORITY_SERIES = ['r18dev', 'fanza']
+    FIELD_PRIORITY_RELEASE_DATE = ['r18dev', 'fanza']
+    FIELD_PRIORITY_RUNTIME = ['r18dev', 'fanza']
+    FIELD_PRIORITY_DESCRIPTION = ['r18dev', 'fanza']
+    FIELD_PRIORITY_COVER = ['r18dev', 'fanza']
+    FIELD_PRIORITY_POSTER = ['r18dev', 'fanza']
+    FIELD_PRIORITY_GALLERY = ['r18dev', 'fanza']
+    
+    # Scraper merge strategy: 'priority' (use first available) or 'merge' (combine data)
+    SCRAPER_MERGE_STRATEGY = os.getenv("SCRAPER_MERGE_STRATEGY", "priority")
+    
     # File Patterns
     JAV_CODE_PATTERN = r'[A-Za-z]{2,5}[-]?\d{3,5}'
     VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mkv', '.wmv', '.mov']
