@@ -36,7 +36,7 @@ class JAVNFOGenerator:
         self.translator = Translator()
         self.subtitle_downloader = SubtitleDownloader()
     
-    def search_manual(self, jav_id: str, output_dir: str = ".", generate_nfo: bool = False, translate: bool = False, download_subtitles: bool = False, download_images: bool = False) -> bool:
+    def search_manual(self, jav_id: str, output_dir: str = ".", generate_nfo: bool = False, translate: bool = False) -> bool:
         """
         Manual search for a specific JAV ID or content ID.
         
@@ -45,8 +45,6 @@ class JAVNFOGenerator:
             output_dir: Output directory for NFO files
             generate_nfo: Whether to generate NFO file or output to terminal
             translate: Whether to translate metadata
-            download_subtitles: Whether to download subtitles
-            download_images: Whether to download images (overrides settings)
             
         Returns:
             True if successful, False otherwise
@@ -68,142 +66,34 @@ class JAVNFOGenerator:
         if best_result:
             print(f"{Fore.GREEN}Found metadata for {jav_id}{Style.RESET_ALL}")
             
-            # Apply translation if requested
             if translate:
                 print(f"{Fore.CYAN}Translating metadata...{Style.RESET_ALL}")
                 best_result = self.translator.translate_metadata(best_result, force_enable=True)
             
             if generate_nfo:
-                # Generate NFO file
-                success = self.nfo_generator.generate_nfo(
-                    best_result, 
-                    f"{jav_id}.mp4",  # Use JAV ID as filename
-                    output_dir
-                )
-                
-                if success:
-                    print(f"{Fore.GREEN}Successfully generated NFO file{Style.RESET_ALL}")
-                    
-                    # Download subtitles if requested
-                    if download_subtitles:
-                        print(f"{Fore.CYAN}Downloading subtitles...{Style.RESET_ALL}")
-                        video_filename = f"{jav_id}.mp4"  # Use JAV ID as filename
-                        subtitle_files = self.subtitle_downloader.download_subtitles_for_jav(jav_id, output_dir, video_filename, best_result, force_enable=True)
-                        if subtitle_files:
-                            print(f"{Fore.GREEN}Successfully downloaded {len(subtitle_files)} subtitle files{Style.RESET_ALL}")
-                        else:
-                            print(f"{Fore.YELLOW}No subtitles found for {jav_id}{Style.RESET_ALL}")
-                    
-                    # Download images if requested or enabled in settings
-                    if download_images or settings.IMAGE_DOWNLOAD_ENABLED:
-                        print(f"{Fore.CYAN}Downloading images...{Style.RESET_ALL}")
-                        nfo_dir = os.path.dirname(FileUtils.get_output_path(f"{jav_id}.mp4", output_dir, best_result))
-                        if not os.path.exists(nfo_dir):
-                            os.makedirs(nfo_dir, exist_ok=True)
-                        
-                        # Download cover image
-                        if download_images or settings.IMAGE_DOWNLOAD_COVER:
-                            cover_url = best_result.get("cover")
-                            if cover_url:
-                                ext = os.path.splitext(cover_url)[1] or ".jpg"
-                                cover_filename = f"{settings.IMAGE_FILENAME_COVER}{ext}"
-                                cover_path = os.path.join(nfo_dir, cover_filename)
-                                try:
-                                    r = requests.get(cover_url, timeout=settings.IMAGE_DOWNLOAD_TIMEOUT)
-                                    if r.status_code == 200:
-                                        with open(cover_path, "wb") as f:
-                                            f.write(r.content)
-                                        print(f"Downloaded cover image: {cover_path}")
-                                    else:
-                                        print(f"Failed to download cover image: {cover_url}")
-                                except Exception as e:
-                                    print(f"Error downloading cover image: {e}")
-                        
-                        # Download poster image
-                        if download_images or settings.IMAGE_DOWNLOAD_POSTER:
-                            poster_url = best_result.get("poster")
-                            if poster_url:
-                                ext = os.path.splitext(poster_url)[1] or ".jpg"
-                                poster_filename = f"{settings.IMAGE_FILENAME_POSTER}{ext}"
-                                poster_path = os.path.join(nfo_dir, poster_filename)
-                                try:
-                                    r = requests.get(poster_url, timeout=settings.IMAGE_DOWNLOAD_TIMEOUT)
-                                    if r.status_code == 200:
-                                        with open(poster_path, "wb") as f:
-                                            f.write(r.content)
-                                        print(f"Downloaded poster image: {poster_path}")
-                                    else:
-                                        print(f"Failed to download poster image: {poster_url}")
-                                except Exception as e:
-                                    print(f"Error downloading poster image: {e}")
-                    
+                # Generate NFO content and output to terminal
+                try:
+                    nfo_content = self.nfo_generator._format_content(best_result)
+                    print(f"\n{Fore.CYAN}=== NFO Content ==={Style.RESET_ALL}")
+                    print(nfo_content)
+                    print(f"{Fore.CYAN}=================={Style.RESET_ALL}")
                     return True
-                else:
-                    print(f"{Fore.RED}Failed to generate NFO file{Style.RESET_ALL}")
+                except Exception as e:
+                    print(f"{Fore.RED}Error generating NFO content: {e}{Style.RESET_ALL}")
                     return False
             else:
                 # Output metadata to terminal
                 self._print_metadata(best_result)
                 
-                # Download subtitles if requested (even without NFO generation)
-                if download_subtitles:
-                    print(f"{Fore.CYAN}Downloading subtitles...{Style.RESET_ALL}")
-                    video_filename = f"{jav_id}.mp4"  # Use JAV ID as filename
-                    subtitle_files = self.subtitle_downloader.download_subtitles_for_jav(jav_id, output_dir, video_filename, best_result, force_enable=True)
-                    if subtitle_files:
-                        print(f"{Fore.GREEN}Successfully downloaded {len(subtitle_files)} subtitle files{Style.RESET_ALL}")
-                    else:
-                        print(f"{Fore.YELLOW}No subtitles found for {jav_id}{Style.RESET_ALL}")
-                
-                # Download images if requested or enabled in settings (even without NFO generation)
-                if download_images or settings.IMAGE_DOWNLOAD_ENABLED:
-                    print(f"{Fore.CYAN}Downloading images...{Style.RESET_ALL}")
-                    nfo_dir = os.path.dirname(FileUtils.get_output_path(f"{jav_id}.mp4", output_dir, best_result))
-                    if not os.path.exists(nfo_dir):
-                        os.makedirs(nfo_dir, exist_ok=True)
-                    
-                    # Download cover image
-                    if download_images or settings.IMAGE_DOWNLOAD_COVER:
-                        cover_url = best_result.get("cover")
-                        if cover_url:
-                            ext = os.path.splitext(cover_url)[1] or ".jpg"
-                            cover_filename = f"{settings.IMAGE_FILENAME_COVER}{ext}"
-                            cover_path = os.path.join(nfo_dir, cover_filename)
-                            try:
-                                r = requests.get(cover_url, timeout=settings.IMAGE_DOWNLOAD_TIMEOUT)
-                                if r.status_code == 200:
-                                    with open(cover_path, "wb") as f:
-                                        f.write(r.content)
-                                    print(f"Downloaded cover image: {cover_path}")
-                                else:
-                                    print(f"Failed to download cover image: {cover_url}")
-                            except Exception as e:
-                                print(f"Error downloading cover image: {e}")
-                    
-                    # Download poster image
-                    if download_images or settings.IMAGE_DOWNLOAD_POSTER:
-                        poster_url = best_result.get("poster")
-                        if poster_url:
-                            ext = os.path.splitext(poster_url)[1] or ".jpg"
-                            poster_filename = f"{settings.IMAGE_FILENAME_POSTER}{ext}"
-                            poster_path = os.path.join(nfo_dir, poster_filename)
-                            try:
-                                r = requests.get(poster_url, timeout=settings.IMAGE_DOWNLOAD_TIMEOUT)
-                                if r.status_code == 200:
-                                    with open(poster_path, "wb") as f:
-                                        f.write(r.content)
-                                    print(f"Downloaded poster image: {poster_path}")
-                                else:
-                                    print(f"Failed to download poster image: {poster_url}")
-                            except Exception as e:
-                                print(f"Error downloading poster image: {e}")
+                # Note: Subtitle and image downloads are not available for manual search
+                # They are only available in auto commands and controlled by settings
                 
                 return True
         else:
             print(f"{Fore.YELLOW}No metadata found for {jav_id}{Style.RESET_ALL}")
             return False
     
-    def search_auto(self, directory: str = ".", output_dir: str = ".", translate: bool = False, download_subtitles: bool = False, download_images: bool = False, max_depth: int = 0) -> int:
+    def search_auto(self, directory: str = ".", output_dir: str = ".", translate: bool = False, max_depth: int = 0) -> int:
         """
         Auto-detect video files and generate NFO files.
         
@@ -211,8 +101,6 @@ class JAVNFOGenerator:
             directory: Directory to scan for video files
             output_dir: Output directory for NFO files
             translate: Whether to translate metadata
-            download_subtitles: Whether to download subtitles
-            download_images: Whether to download images (overrides settings)
             max_depth: Maximum depth to search subdirectories (0 = current directory only)
             
         Returns:
@@ -254,13 +142,13 @@ class JAVNFOGenerator:
                 nfo_success = self.nfo_generator.generate_nfo(best_result, filename, output_dir)
                 if nfo_success:
                     # Download poster and fanart images to output dir
-                    if download_images or settings.IMAGE_DOWNLOAD_ENABLED:
+                    if settings.IMAGE_DOWNLOAD_ENABLED:
                         nfo_dir = os.path.dirname(FileUtils.get_output_path(filename, output_dir, best_result))
                         if not os.path.exists(nfo_dir):
                             os.makedirs(nfo_dir, exist_ok=True)
                         
                         # Download cover image
-                        if download_images or settings.IMAGE_DOWNLOAD_COVER:
+                        if settings.IMAGE_DOWNLOAD_COVER:
                             cover_url = best_result.get("cover")
                             if cover_url:
                                 ext = os.path.splitext(cover_url)[1] or ".jpg"
@@ -278,7 +166,7 @@ class JAVNFOGenerator:
                                     print(f"Error downloading cover image: {e}")
                         
                         # Download poster image
-                        if download_images or settings.IMAGE_DOWNLOAD_POSTER:
+                        if settings.IMAGE_DOWNLOAD_POSTER:
                             poster_url = best_result.get("poster")
                             if poster_url:
                                 ext = os.path.splitext(poster_url)[1] or ".jpg"
@@ -305,8 +193,8 @@ class JAVNFOGenerator:
                     except Exception as e:
                         print(f"Failed to move video file: {e}")
 
-                    # Download subtitles if requested
-                    if download_subtitles:
+                    # Download subtitles if enabled in settings
+                    if settings.SUBTITLE_DOWNLOAD_ENABLED:
                         print(f"{Fore.CYAN}Downloading subtitles for {jav_code}...{Style.RESET_ALL}")
                         # Get the output video name for subtitle naming
                         video_output_name = FileUtils.get_output_video_name(filename, output_dir, best_result)
@@ -464,27 +352,23 @@ def cli():
 @cli.command()
 @click.option('--id', '-i', required=True, help='JAV ID or content ID to search for')
 @click.option('--output', '-o', default='.', help='Output directory for NFO files')
-@click.option('--nfo', is_flag=True, help='Generate NFO file instead of terminal output')
+@click.option('--nfo', is_flag=True, help='Outputs metadata in NFO format')
 @click.option('--translate', '-t', is_flag=True, help='Translate metadata to English')
-@click.option('--subtitles', '-s', is_flag=True, help='Download subtitles for the JAV ID')
-@click.option('--images', '-m', is_flag=True, help='Download cover and poster images')
-def search(id, output, nfo, translate, subtitles, images):
+def search(id, output, nfo, translate):
     """Search for metadata using a specific JAV ID or content ID. Outputs to terminal by default, use --nfo to generate NFO file."""
     app = JAVNFOGenerator()
-    success = app.search_manual(id, output, generate_nfo=nfo, translate=translate, download_subtitles=subtitles, download_images=images)
+    success = app.search_manual(id, output, generate_nfo=nfo, translate=translate)
     sys.exit(0 if success else 1)
 
 @cli.command()
 @click.option('--directory', '-d', default='.', help='Directory to scan for video files')
 @click.option('--output', '-o', default='.', help='Output directory for NFO files')
 @click.option('--translate', '-t', is_flag=True, help='Translate metadata to English')
-@click.option('--subtitles', '-s', is_flag=True, help='Download subtitles for found JAV IDs')
-@click.option('--images', '-m', is_flag=True, help='Download cover and poster images')
 @click.option('--depth', default=0, help='Maximum depth to search subdirectories (0 = current directory only)')
-def auto(directory, output, translate, subtitles, images, depth):
+def auto(directory, output, translate, depth):
     """Auto-detect video files and generate NFO files."""
     app = JAVNFOGenerator()
-    success_count = app.search_auto(directory, output, translate, download_subtitles=subtitles, download_images=images, max_depth=depth)
+    success_count = app.search_auto(directory, output, translate, max_depth=depth)
     print(f"\n{Fore.GREEN}Successfully processed {success_count} files{Style.RESET_ALL}")
     sys.exit(0 if success_count > 0 else 1)
 
@@ -492,13 +376,11 @@ def auto(directory, output, translate, subtitles, images, depth):
 @click.option('--directory', '-d', required=True, help='Directory containing video files')
 @click.option('--output', '-o', default='.', help='Output directory for NFO files')
 @click.option('--translate', '-t', is_flag=True, help='Translate metadata to English')
-@click.option('--subtitles', '-s', is_flag=True, help='Download subtitles for found JAV IDs')
-@click.option('--images', '-m', is_flag=True, help='Download cover and poster images')
 @click.option('--depth', default=0, help='Maximum depth to search subdirectories (0 = current directory only)')
-def batch(directory, output, translate, subtitles, images, depth):
+def batch(directory, output, translate, depth):
     """Process multiple directories in batch mode."""
     app = JAVNFOGenerator()
-    success_count = app.search_auto(directory, output, translate, download_subtitles=subtitles, download_images=images, max_depth=depth)
+    success_count = app.search_auto(directory, output, translate, max_depth=depth)
     print(f"\n{Fore.GREEN}Successfully processed {success_count} files{Style.RESET_ALL}")
     sys.exit(0 if success_count > 0 else 1)
 

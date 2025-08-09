@@ -38,20 +38,16 @@ def search():
 @search.command()
 @click.option('--id', '-i', required=True, help='JAV ID or content ID to search for')
 @click.option('--output', '-o', default='.', help='Output directory for files')
-@click.option('--nfo', is_flag=True, help='Generate NFO file instead of terminal output')
+@click.option('--nfo', is_flag=True, help='Outputs metadata in NFO format')
 @click.option('--translate', '-t', is_flag=True, help='Translate metadata to English')
-@click.option('--subtitles', '-s', is_flag=True, help='Download subtitles for the JAV ID')
-@click.option('--images', '-m', is_flag=True, help='Download cover and poster images')
 @click.pass_context
-def manual(ctx, id, output, nfo, translate, subtitles, images):
+def manual(ctx, id, output, nfo, translate):
     """Search for metadata using a specific JAV ID or content ID."""
     app = JAVNFOGenerator()
     success = app.search_manual(
         id, output, 
         generate_nfo=nfo, 
-        translate=translate, 
-        download_subtitles=subtitles,
-        download_images=images
+        translate=translate
     )
     sys.exit(0 if success else 1)
 
@@ -65,16 +61,12 @@ def auto():
 @click.option('--directory', '-d', default='.', help='Directory to scan for video files')
 @click.option('--output', '-o', default='.', help='Output directory for files')
 @click.option('--translate', '-t', is_flag=True, help='Translate metadata to English')
-@click.option('--subtitles', '-s', is_flag=True, help='Download subtitles for found JAV IDs')
-@click.option('--images', '-m', is_flag=True, help='Download cover and poster images')
 @click.pass_context
-def scan(ctx, directory, output, translate, subtitles, images):
+def scan(ctx, directory, output, translate):
     """Auto-detect video files and generate NFO files."""
     app = JAVNFOGenerator()
     success_count = app.search_auto(
-        directory, output, translate, 
-        download_subtitles=subtitles,
-        download_images=images
+        directory, output, translate
     )
     print(f"\n{Fore.GREEN}Successfully processed {success_count} files{Style.RESET_ALL}")
     sys.exit(0 if success_count > 0 else 1)
@@ -83,16 +75,12 @@ def scan(ctx, directory, output, translate, subtitles, images):
 @click.option('--directory', '-d', required=True, help='Directory containing video files')
 @click.option('--output', '-o', default='.', help='Output directory for files')
 @click.option('--translate', '-t', is_flag=True, help='Translate metadata to English')
-@click.option('--subtitles', '-s', is_flag=True, help='Download subtitles for found JAV IDs')
-@click.option('--images', '-m', is_flag=True, help='Download cover and poster images')
 @click.pass_context
-def batch(ctx, directory, output, translate, subtitles, images):
+def batch(ctx, directory, output, translate):
     """Process multiple directories in batch mode."""
     app = JAVNFOGenerator()
     success_count = app.search_auto(
-        directory, output, translate, 
-        download_subtitles=subtitles,
-        download_images=images
+        directory, output, translate
     )
     print(f"\n{Fore.GREEN}Successfully processed {success_count} files{Style.RESET_ALL}")
     sys.exit(0 if success_count > 0 else 1)
