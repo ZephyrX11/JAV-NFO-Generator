@@ -49,6 +49,10 @@ class PatternMatcher:
         prefix, number = parts
         prefix_lower = prefix.lower()
         
+        no_zero_pad_codes = {'smus', 'smjh', 'smub', 'smjs', 'smjx', 'orecz', 'nost', 'mfcs'}
+        if prefix_lower in no_zero_pad_codes:
+            return f"{prefix_lower}{number.zfill(3)}"
+
         # Pad number with zeros to 5 digits
         padded_number = number.zfill(5)
         
