@@ -88,7 +88,8 @@ class Settings:
     REQUIRED_FIELDS_ENABLED = os.getenv("REQUIRED_FIELDS_ENABLED", "true").lower() == "true"
     
     # File Patterns
-    JAV_CODE_PATTERN = r'[A-Za-z]{2,6}[-]?\d{3,5}'
+    #JAV_CODE_PATTERN = r'[A-Za-z]{2,6}[-]?\d{3,5}'
+    JAV_CODE_PATTERN = r'[A-Za-z0-9]{2,6}-?\d{3,5}'
     VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mkv', '.wmv', '.mov']
     
     # NFO Template Settings

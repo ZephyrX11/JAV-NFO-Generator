@@ -48,8 +48,11 @@ class PatternMatcher:
         
         prefix, number = parts
         prefix_lower = prefix.lower()
+
+        if prefix_lower == 't28':
+            return f"55t28{number.zfill(5)}"
         
-        no_zero_pad_codes = {'smus', 'smjh', 'smub', 'smjs', 'smjx', 'orecz', 'nost', 'mfcs'}
+        no_zero_pad_codes = {'smus', 'smjh', 'smub', 'smjs', 'smjx', 'orecz', 'nost', 'mfc', 'mfcs'}
         if prefix_lower in no_zero_pad_codes:
             return f"{prefix_lower}{number.zfill(3)}"
 
@@ -58,7 +61,7 @@ class PatternMatcher:
         
         # Pattern 1: Prefix with "1" instead of "00" for specific codes
         prefix_1_codes = {
-            'sdmf', 'dldss', 'sw', 'start', 'piyo', 'sdam', 'sdmm', 'hawa', 'fsdss', 'senn'
+            'sdmf', 'dldss', 'sw', 'start', 'stars', 'piyo', 'sdam', 'sdmm', 'hawa', 'fsdss', 'senn'
         }
         if prefix_lower in prefix_1_codes:
             return f"1{prefix_lower}{padded_number}"
