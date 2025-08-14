@@ -33,10 +33,10 @@ class PatternMatcher:
         Convert JAV code to Fanza content ID.
         
         Args:
-            jav_code: JAV code (e.g., "SONE-638")
+            jav_code: JAV code (e.g., "SONE-638", "SDMF-022", "MILK-225", "DHLD-011")
             
         Returns:
-            Fanza content ID (e.g., "sone00638")
+            Fanza content ID (e.g., "sone00638", "1sdmf00022", "h_1240milk00225", "36dhld00011")
         """
         # Remove any non-alphanumeric characters except dash
         clean_code = re.sub(r'[^A-Za-z0-9-]', '', jav_code)
@@ -47,14 +47,36 @@ class PatternMatcher:
             return jav_code.lower()  # Return as-is if no dash found
         
         prefix, number = parts
-        
-        # Convert to lowercase
-        prefix = prefix.lower()
+        prefix_lower = prefix.lower()
         
         # Pad number with zeros to 5 digits
         padded_number = number.zfill(5)
         
-        return f"{prefix}{padded_number}"
+        # Pattern 1: Prefix with "1" instead of "00" for specific codes
+        prefix_1_codes = {
+            'sdmf', 'dldss', 'sw', 'start', 'piyo', 'sdam', 'sdmm', 'hawa', 'fsdss', 'senn'
+        }
+        if prefix_lower in prefix_1_codes:
+            return f"1{prefix_lower}{padded_number}"
+        
+        # Pattern 2: Prefix with "h_" and specific numbers for certain maker codes
+        h_prefix_codes = {
+            'milk': 'h_1240',
+            'ambi': 'h_237', 
+            'fnew': 'h_491'
+        }
+        if prefix_lower in h_prefix_codes:
+            return f"{h_prefix_codes[prefix_lower]}{prefix_lower}{padded_number}"
+        
+        # Pattern 3: Numeric prefix before the code for specific patterns
+        numeric_prefix_codes = {
+            'dhld': '36'
+        }
+        if prefix_lower in numeric_prefix_codes:
+            return f"{numeric_prefix_codes[prefix_lower]}{prefix_lower}{padded_number}"
+        
+        # Default pattern: standard format
+        return f"{prefix_lower}{padded_number}"
     
     @staticmethod
     def content_id_to_jav_code(content_id: str) -> str:

@@ -82,7 +82,7 @@ class Settings:
     SCRAPER_MERGE_STRATEGY = os.getenv("SCRAPER_MERGE_STRATEGY", "priority")
     
     # File Patterns
-    JAV_CODE_PATTERN = r'[A-Za-z]{2,5}[-]?\d{3,5}'
+    JAV_CODE_PATTERN = r'[A-Za-z]{2,6}[-]?\d{3,5}'
     VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mkv', '.wmv', '.mov']
     
     # NFO Template Settings
