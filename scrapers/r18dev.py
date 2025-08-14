@@ -25,8 +25,8 @@ class R18DevScraper(BaseScraper):
             Dictionary with metadata or None if not found
         """
         # Convert JAV code to content ID for R18.dev API
-        # content_id = PatternMatcher.jav_code_to_content_id(jav_code)
-        content_id = jav_code.lower().replace("-", "")
+        content_id = PatternMatcher.jav_code_to_content_id(jav_code)
+        # content_id = jav_code.lower().replace("-", "")
         
         # Build API URL
         url = self.base_url.format(content_id)
