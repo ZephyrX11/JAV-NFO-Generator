@@ -129,24 +129,33 @@ class Translator:
     
     def translate_metadata(self, metadata: Dict[str, Any], force_enable: bool = False) -> Dict[str, Any]:
         """
-        Translate metadata fields based on configuration with caching.
+        Translate metadata fields based on configuration.
         
         Args:
-            metadata: Original metadata dictionary
-            force_enable: Force enable translation regardless of settings
+            metadata: Metadata dictionary to translate
+            force_enable: Force translation even if disabled in settings
             
         Returns:
-            Metadata with translated fields
+            Translated metadata dictionary
         """
         if not settings.TRANSLATION_ENABLED and not force_enable:
             return metadata
         
         translated_metadata = metadata.copy()
         
+        # Check if R18.dev is set to English mode
+        r18dev_english_mode = getattr(settings, 'R18DEV_LANGUAGE', 'jp') == 'en'
+        field_sources = metadata.get('_field_sources', {})
+        
         for field in settings.TRANSLATION_FIELDS:
             field = field.strip()
             if field in metadata and metadata[field]:
                 original_value = metadata[field]
+
+                # Skip translation if field is from R18.dev and R18DEV_LANGUAGE is 'en'
+                if r18dev_english_mode and field_sources.get(field) == 'r18dev':
+                    print(f"Skipping translation for {field}: R18.dev already provides English data")
+                    continue
 
                 # Handle array fields (directors, genres, actresses)
                 

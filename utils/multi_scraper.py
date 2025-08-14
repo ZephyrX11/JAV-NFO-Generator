@@ -82,14 +82,18 @@ class MultiScraperManager:
                 all_fields.update(result.keys())
         
         # For each field, use the highest priority scraper that has data
+        field_sources = {}  # Track which scraper provided each field
         for field in all_fields:
-            field_value = self._get_field_by_priority(field, scraper_results)
+            field_value, source_scraper = self._get_field_by_priority_with_source(field, scraper_results)
             if field_value is not None:
                 merged[field] = field_value
+                if source_scraper:
+                    field_sources[field] = source_scraper
         
         # Add metadata about which scrapers were used
         merged['_scrapers_used'] = [name for name, result in scraper_results.items() if result is not None]
         merged['_merge_strategy'] = settings.SCRAPER_MERGE_STRATEGY
+        merged['_field_sources'] = field_sources  # Track field sources for translation optimization
         
         return merged
     
@@ -104,21 +108,37 @@ class MultiScraperManager:
         Returns:
             Field value from highest priority scraper that has data
         """
+        value, _ = self._get_field_by_priority_with_source(field, scraper_results)
+        return value
+    
+    def _get_field_by_priority_with_source(self, field: str, scraper_results: Dict[str, Optional[Dict[str, Any]]]) -> tuple[Any, Optional[str]]:
+        """
+        Get field value and source scraper based on scraper priority.
+        
+        Args:
+            field: Field name to get
+            scraper_results: Dictionary mapping scraper names to their results
+            
+        Returns:
+            Tuple of (field value, source scraper name) from highest priority scraper that has data
+        """
         # Get priority list for this field, fallback to enabled scrapers order
         priority_list = self.field_priorities.get(field, self.enabled_scrapers)
         
         if settings.SCRAPER_MERGE_STRATEGY == "merge" and field in ['actresses', 'actors', 'directors', 'categories', 'gallery']:
             # For list fields, merge data from all scrapers
-            return self._merge_list_field(field, scraper_results)
+            merged_value = self._merge_list_field(field, scraper_results)
+            # For merged fields, we can't identify a single source, so return None for source
+            return merged_value, None
         
         # Priority strategy: use first available
         for scraper_name in priority_list:
             if scraper_name in scraper_results and scraper_results[scraper_name]:
                 result = scraper_results[scraper_name]
                 if field in result and self._is_valid_value(result[field]):
-                    return result[field]
+                    return result[field], scraper_name
         
-        return None
+        return None, None
     
     def _merge_list_field(self, field: str, scraper_results: Dict[str, Optional[Dict[str, Any]]]) -> List[Any]:
         """
