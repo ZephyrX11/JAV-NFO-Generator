@@ -173,8 +173,8 @@ class FanzaScraper(BaseScraper):
             
             # Extract rating info
             review = raw_data.get('data', {}).get('reviewSummary', {})
-            rating = review.get('average', '')  # Use float or format as string
-            votes = review.get('total', '')     # Total number of votes
+            rating = review.get('average', '') if review else ''
+            votes = review.get('total', '') if review else ''
 
             return {
                 'title': title,
