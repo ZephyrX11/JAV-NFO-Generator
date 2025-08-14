@@ -53,10 +53,9 @@ class NFOGenerator:
         # Ensure all required fields are present
         formatted_metadata = self._ensure_required_fields(metadata)
 
-        plot = metadata.get('plot', '')
-        plot = plot.replace('<br>', '\n')
-        plot = re.sub(r"<[^>]+>", "", plot)
+        plot = re.sub(r"<[^>]+>", "", metadata.get('plot', '').replace('<br>', '\n'))
         formatted_metadata['plot'] = plot
+        formatted_metadata['outline'] = plot[:100].replace('\n', ' ') + '...' if len(plot) > 100 else plot
 
         # Use director, genre and actress arrays
         directors = metadata.get('directors', [])
