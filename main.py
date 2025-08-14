@@ -65,6 +65,12 @@ class JAVNFOGenerator:
         if best_result:
             print(f"{Fore.GREEN}Found metadata for {jav_id}{Style.RESET_ALL}")
             
+            # Validate required fields
+            is_valid, missing_fields = self._validate_required_fields(best_result)
+            if not is_valid:
+                print(f"{Fore.YELLOW}Warning: Missing required fields: {', '.join(missing_fields)}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Proceeding with available metadata (manual search mode){Style.RESET_ALL}")
+            
             if translate:
                 print(f"{Fore.CYAN}Translating metadata...{Style.RESET_ALL}")
                 best_result = self.translator.translate_metadata(best_result, force_enable=True)
@@ -131,6 +137,12 @@ class JAVNFOGenerator:
             best_result = self.multi_scraper.search_with_priority(jav_code)
             
             if best_result:
+                # Validate required fields
+                is_valid, missing_fields = self._validate_required_fields(best_result)
+                if not is_valid:
+                    print(f"{Fore.YELLOW}Skipping {filename}: Missing required fields: {', '.join(missing_fields)}{Style.RESET_ALL}")
+                    continue
+                
                 # Apply translation if requested
                 if translate:
                     print(f"{Fore.CYAN}Translating metadata for {filename}...{Style.RESET_ALL}")
@@ -210,6 +222,32 @@ class JAVNFOGenerator:
                 print(f"{Fore.YELLOW}No metadata found for {jav_code}{Style.RESET_ALL}")
         
         return success_count
+    
+    def _validate_required_fields(self, metadata: dict) -> tuple[bool, List[str]]:
+        """
+        Validate that metadata contains all required fields.
+        
+        Args:
+            metadata: Metadata dictionary to validate
+            
+        Returns:
+            Tuple of (is_valid, missing_fields)
+        """
+        if not settings.REQUIRED_FIELDS_ENABLED:
+            return True, []
+        
+        missing_fields = []
+        for field in settings.REQUIRED_FIELDS:
+            field = field.strip()  # Remove any whitespace
+            if not field:  # Skip empty field names
+                continue
+                
+            # Check if field exists and has a non-empty value
+            field_value = metadata.get(field)
+            if not field_value or (isinstance(field_value, str) and field_value.strip() == ""):
+                missing_fields.append(field)
+        
+        return len(missing_fields) == 0, missing_fields
     
     def _get_best_result(self, results: dict) -> Optional[dict]:
         """

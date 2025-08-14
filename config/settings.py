@@ -81,6 +81,12 @@ class Settings:
     # Scraper merge strategy: 'priority' (use first available) or 'merge' (combine data)
     SCRAPER_MERGE_STRATEGY = os.getenv("SCRAPER_MERGE_STRATEGY", "priority")
     
+    # Required Fields Validation
+    # Fields that must be present in metadata for processing to continue
+    # If any of these fields are missing or empty, the video file will be skipped
+    REQUIRED_FIELDS = ['id', 'title', 'year']
+    REQUIRED_FIELDS_ENABLED = os.getenv("REQUIRED_FIELDS_ENABLED", "true").lower() == "true"
+    
     # File Patterns
     JAV_CODE_PATTERN = r'[A-Za-z]{2,6}[-]?\d{3,5}'
     VIDEO_EXTENSIONS = ['.mp4', '.avi', '.mkv', '.wmv', '.mov']
