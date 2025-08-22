@@ -74,14 +74,17 @@ class PatternMatcher:
         h_prefix_codes = {
             'milk': 'h_1240',
             'ambi': 'h_237', 
-            'fnew': 'h_491'
+            'fnew': 'h_491',
+            'einav': 'h_1350',
+            'pjab': 'h_1604'
         }
         if prefix_lower in h_prefix_codes:
             return f"{h_prefix_codes[prefix_lower]}{prefix_lower}{padded_number}"
         
         # Pattern 3: Numeric prefix before the code for specific patterns
         numeric_prefix_codes = {
-            'dhld': '36'
+            'dhld': '36',
+            'fays': '55'
         }
         if prefix_lower in numeric_prefix_codes:
             return f"{numeric_prefix_codes[prefix_lower]}{prefix_lower}{padded_number}"
