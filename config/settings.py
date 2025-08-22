@@ -58,7 +58,7 @@ class Settings:
     CACHE_FILE = os.getenv("CACHE_FILE", "")  # Empty for default location
     
     # Multi-Scraper Settings
-    ENABLED_SCRAPERS = ['fanza', 'r18dev']
+    ENABLED_SCRAPERS = ['r18dev', 'fanza']
 
     # R18.dev Language Settings
     R18DEV_LANGUAGE = os.getenv("R18DEV_LANGUAGE", "en")  # "en" | "jp"
