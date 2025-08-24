@@ -30,10 +30,8 @@ class NFOGenerator:
             
             # Write NFO file
             if FileUtils.write_nfo_file(content, output_path):
-                print(f"Generated NFO file: {output_path}")
                 return True
             else:
-                print(f"Failed to write NFO file: {output_path}")
                 return False
                 
         except Exception as e:

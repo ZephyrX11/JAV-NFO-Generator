@@ -170,7 +170,7 @@ class Translator:
             
             if translated_value and translated_value != original_value:
                 translated_metadata[field] = translated_value
-                print(f"Translated {field}: {str(original_value)[:50]}... → {str(translated_value)[:50]}...")
+                print(f"Translated {field}: {str(original_value)[:20]}... → {str(translated_value)[:30]}...")
             
             # Rate limiting for API calls (only if not cached)
             if isinstance(original_value, str) and not translation_cache.get_cached_translation(original_value, field):

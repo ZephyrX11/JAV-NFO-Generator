@@ -46,19 +46,19 @@ class MultiScraperManager:
         for scraper_name in self.enabled_scrapers:
             scraper = self.scraper_factory.create_scraper(scraper_name)
             if scraper:
-                print(f"Searching with {scraper.get_name()}...")
+                print(f"\033[2;37mSearching with {scraper.get_name()}...\033[0m")
                 try:
                     result = scraper.search(jav_code)
                     results[scraper_name] = result
                     if result:
-                        print(f"✓ {scraper.get_name()} found data")
+                        print(f"\033[2;32m✓ {scraper.get_name()} found data\033[0m")
                     else:
-                        print(f"✗ {scraper.get_name()} found no data")
+                        print(f"\033[2;31m✗ {scraper.get_name()} found no data\033[0m")
                 except Exception as e:
-                    print(f"✗ {scraper.get_name()} failed: {e}")
+                    print(f"\033[2;31m✗ {scraper.get_name()} failed: {e}\033[0m")
                     results[scraper_name] = None
             else:
-                print(f"✗ Failed to create scraper: {scraper_name}")
+                print(f"\033[2;31m✗ Failed to create scraper: {scraper_name}\033[0m")
                 results[scraper_name] = None
         
         return results
@@ -219,5 +219,5 @@ class MultiScraperManager:
         # Merge results based on priorities
         merged_metadata = self.merge_metadata(scraper_results)
         
-        print(f"✓ Merged metadata from {len(merged_metadata.get('_scrapers_used', []))} scrapers")
+        print(f"\033[2;32m✓ Merged metadata from {len(merged_metadata.get('_scrapers_used', []))} scrapers\033[0m")
         return merged_metadata
