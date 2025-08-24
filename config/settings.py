@@ -44,11 +44,8 @@ class Settings:
     
     # Image Download Settings
     IMAGE_DOWNLOAD_ENABLED = os.getenv("IMAGE_DOWNLOAD_ENABLED", "true").lower() == "true"
-    IMAGE_DOWNLOAD_COVER = os.getenv("IMAGE_DOWNLOAD_COVER", "true").lower() == "true"
-    IMAGE_DOWNLOAD_POSTER = os.getenv("IMAGE_DOWNLOAD_POSTER", "true").lower() == "true"
     IMAGE_FILENAME_COVER = os.getenv("IMAGE_FILENAME_COVER", "fanart")  # fanart.jpg
     IMAGE_FILENAME_POSTER = os.getenv("IMAGE_FILENAME_POSTER", "folder")  # folder.jpg
-    IMAGE_DOWNLOAD_TIMEOUT = int(os.getenv("IMAGE_DOWNLOAD_TIMEOUT", "15"))
     
     # Genres to skip (comma-separated)
     SKIP_GENRES = os.getenv("SKIP_GENRES", "4K,ハイビジョン,独占配信").split(",")

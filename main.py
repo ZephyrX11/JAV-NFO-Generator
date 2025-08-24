@@ -179,13 +179,13 @@ class JAVNFOGenerator:
                         poster_ok = download_image(poster_url, settings.IMAGE_FILENAME_POSTER)
 
                         if cover_ok and poster_ok:
-                            print("Downloaded cover and poster image")
+                            print(f"{Fore.MAGENTA}Downloaded cover and poster image{Style.RESET_ALL}")
                         elif cover_ok:
-                            print("Downloaded cover image")
+                            print(f"{Fore.MAGENTA}Downloaded cover image{Style.RESET_ALL}")
                         elif poster_ok:
-                            print("Downloaded poster image")
+                            print(f"{Fore.MAGENTA}Downloaded poster image{Style.RESET_ALL}")
                         else:
-                            print("Failed to download image")
+                            print(f"{Fore.RED}Failed to download image{Style.RESET_ALL}")
                         
                     # --- Move video file to output_dir if NFO was generated ---
                     # Use the same tag replacement as output_dir for the video file name
@@ -193,9 +193,9 @@ class JAVNFOGenerator:
                     video_output_path = os.path.join(os.path.dirname(FileUtils.get_output_path(filename, output_dir, best_result)), video_output_name)
                     try:
                         shutil.move(os.path.join(directory, filename), video_output_path)
-                        print(f"Moved video file to: {video_output_path}")
+                        print(f"{Fore.MAGENTA}Moved video file to: {video_output_path}{Style.RESET_ALL}")
                     except Exception as e:
-                        print(f"Failed to move video file: {e}")
+                        print(f"{Fore.RED}Failed to move video file: {e}{Style.RESET_ALL}")
 
                     # Download subtitles if enabled in settings
                     if settings.SUBTITLE_DOWNLOAD_ENABLED:
