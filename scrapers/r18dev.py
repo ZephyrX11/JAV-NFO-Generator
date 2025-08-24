@@ -77,7 +77,7 @@ class R18DevScraper(BaseScraper):
             series = raw_data.get('series_name_en', '')
             maker = raw_data.get('maker_name_en', '')
             actresses = [
-                {"name": a.get("name_romaji", ""), "image": IMAGE_BASE_URL + a.get("image_url", "")}
+                {"name": a.get("name_romaji", "") or "","image": IMAGE_BASE_URL + a["image_url"] if a.get("image_url") else ""}
                 for a in raw_data.get("actresses", [])
             ]
         else:
@@ -89,7 +89,7 @@ class R18DevScraper(BaseScraper):
             series = raw_data.get('series_name_ja', '')
             maker = raw_data.get('maker_name_ja', '')
             actresses = [
-                {"name": a.get("name_kanji", ""), "image": IMAGE_BASE_URL + a.get("image_url", "")}
+                {"name": a.get("name_kanji", "") or "", "image": IMAGE_BASE_URL + a["image_url"] if a.get("image_url") else ""}
                 for a in raw_data.get("actresses", [])
             ]
             
