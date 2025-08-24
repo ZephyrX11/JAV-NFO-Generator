@@ -5,17 +5,18 @@ import time
 from urllib.parse import urljoin
 from typing import List, Optional, Dict
 from config.settings import settings
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class SubtitleDownloader:
-    """Quiet, deduplicated subtitle downloader from subtitlecat.com (no counters)."""
+    """Ultra-fast, parallel subtitle downloader from subtitlecat.com."""
 
     def __init__(self):
-        self.headers = {'User-Agent': settings.USER_AGENT}
+        self.session = requests.Session()
+        self.session.headers.update({'User-Agent': settings.USER_AGENT})
         self.base_url = "https://subtitlecat.com/"
 
     def _guess_lang_from_filename(self, filename: str) -> str:
-        """Guess source language from filename if not detected in HTML."""
         fname = filename.lower()
         if ".en" in fname:
             return "english"
@@ -30,10 +31,9 @@ class SubtitleDownloader:
         return "unknown"
 
     def search_subtitles(self, jav_id: str) -> List[Dict[str, str]]:
-        """Find subtitle page URLs and detect source languages."""
         url = f"{self.base_url}index.php?search={jav_id}"
         try:
-            r = requests.get(url, headers=self.headers, timeout=settings.REQUEST_TIMEOUT)
+            r = self.session.get(url, timeout=settings.REQUEST_TIMEOUT)
             if r.status_code != 200:
                 return []
 
@@ -57,9 +57,8 @@ class SubtitleDownloader:
             return []
 
     def get_download_links(self, page_url: str) -> List[Dict[str, str]]:
-        """Extract direct subtitle download links from a subtitle page."""
         try:
-            r = requests.get(page_url, headers=self.headers, timeout=settings.REQUEST_TIMEOUT)
+            r = self.session.get(page_url, timeout=settings.REQUEST_TIMEOUT)
             if r.status_code != 200:
                 return []
             download_links = []
@@ -80,7 +79,6 @@ class SubtitleDownloader:
     def download_subtitle(self, download_url: str, jav_id: str, language: str,
                           output_dir: str = "", video_filename: str = "",
                           metadata: dict = None, source_lang: str = "unknown") -> Optional[str]:
-        """Download a single subtitle file (no counters in name)."""
         try:
             if not output_dir or output_dir == ".":
                 output_dir = getattr(settings, "OUTPUT_DIR_TEMPLATE", "<ID>")
@@ -105,9 +103,9 @@ class SubtitleDownloader:
             filepath = os.path.join(output_dir, subtitle_filename)
 
             if os.path.exists(filepath):
-                return None  # don't count or redownload
+                return None  # already downloaded
 
-            r = requests.get(download_url, headers=self.headers, timeout=settings.REQUEST_TIMEOUT)
+            r = self.session.get(download_url, timeout=settings.REQUEST_TIMEOUT)
             if r.status_code == 200:
                 with open(filepath, 'wb') as f:
                     f.write(r.content)
@@ -119,7 +117,6 @@ class SubtitleDownloader:
     def download_subtitles_for_jav(self, jav_id: str, output_dir: str = "",
                                    video_filename: str = "", metadata: dict = None,
                                    force_enable: bool = False) -> List[str]:
-        """Download all available subtitles for a JAV ID."""
         if not settings.SUBTITLE_DOWNLOAD_ENABLED and not force_enable:
             return []
 
@@ -130,22 +127,28 @@ class SubtitleDownloader:
         seen_urls = set()
         downloaded_files = []
 
-        for page in subtitle_pages:
-            download_links = self.get_download_links(page["url"])
-            for link in download_links:
-                if link['url'] in seen_urls:
-                    continue
-                seen_urls.add(link['url'])
+        with ThreadPoolExecutor(max_workers=4) as executor:  # crank up threads
+            futures = []
+            for page in subtitle_pages:
+                download_links = self.get_download_links(page["url"])
+                for link in download_links:
+                    if link['url'] in seen_urls:
+                        continue
+                    seen_urls.add(link['url'])
 
-                if link['language'] in settings.SUBTITLE_LANGUAGES:
-                    filepath = self.download_subtitle(
-                        link['url'], jav_id, link['language'], output_dir,
-                        video_filename, metadata, source_lang=page["source"]
-                    )
-                    if filepath:
-                        downloaded_files.append(filepath)
+                    if link['language'] in settings.SUBTITLE_LANGUAGES:
+                        futures.append(
+                            executor.submit(
+                                self.download_subtitle, link['url'], jav_id,
+                                link['language'], output_dir, video_filename,
+                                metadata, page["source"]
+                            )
+                        )
 
-            time.sleep(settings.REQUEST_DELAY)
+            for future in as_completed(futures):
+                filepath = future.result()
+                if filepath:
+                    downloaded_files.append(filepath)
 
         # Minimal output: only files actually saved
         for f in downloaded_files:
