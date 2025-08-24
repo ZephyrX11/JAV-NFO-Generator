@@ -157,42 +157,36 @@ class JAVNFOGenerator:
                         if not os.path.exists(nfo_dir):
                             os.makedirs(nfo_dir, exist_ok=True)
                         
-                        # Download cover image
-                        if settings.IMAGE_DOWNLOAD_COVER:
-                            cover_url = best_result.get("cover")
-                            if cover_url:
-                                ext = os.path.splitext(cover_url)[1] or ".jpg"
-                                cover_filename = f"{settings.IMAGE_FILENAME_COVER}{ext}"
-                                cover_path = os.path.join(nfo_dir, cover_filename)
-                                try:
-                                    r = requests.get(cover_url, timeout=settings.IMAGE_DOWNLOAD_TIMEOUT)
-                                    if r.status_code == 200:
-                                        with open(cover_path, "wb") as f:
-                                            f.write(r.content)
-                                        print(f"Downloaded cover image: {cover_path}")
-                                    else:
-                                        print(f"Failed to download cover image: {cover_url}")
-                                except Exception as e:
-                                    print(f"Error downloading cover image: {e}")
-                        
-                        # Download poster image
-                        if settings.IMAGE_DOWNLOAD_POSTER:
-                            poster_url = best_result.get("poster")
-                            if poster_url:
-                                ext = os.path.splitext(poster_url)[1] or ".jpg"
-                                poster_filename = f"{settings.IMAGE_FILENAME_POSTER}{ext}"
-                                poster_path = os.path.join(nfo_dir, poster_filename)
-                                try:
-                                    r = requests.get(poster_url, timeout=settings.IMAGE_DOWNLOAD_TIMEOUT)
-                                    if r.status_code == 200:
-                                        with open(poster_path, "wb") as f:
-                                            f.write(r.content)
-                                        print(f"Downloaded poster image: {poster_path}")
-                                    else:
-                                        print(f"Failed to download poster image: {poster_url}")
-                                except Exception as e:
-                                    print(f"Error downloading poster image: {e}")
+                        cover_url = best_result.get("cover")
+                        poster_url = best_result.get("poster")
 
+                        def download_image(url, name):
+                            if not url:
+                                return False
+                            ext = os.path.splitext(url)[1] or ".jpg"
+                            path = os.path.join(nfo_dir, f"{name}{ext}")
+                            try:
+                                r = requests.get(url, timeout=10)
+                                if r.status_code == 200:
+                                    with open(path, "wb") as f:
+                                        f.write(r.content)
+                                    return True
+                            except:
+                                return False
+                            return False
+
+                        cover_ok = download_image(cover_url, settings.IMAGE_FILENAME_COVER)
+                        poster_ok = download_image(poster_url, settings.IMAGE_FILENAME_POSTER)
+
+                        if cover_ok and poster_ok:
+                            print("Downloaded cover and poster image")
+                        elif cover_ok:
+                            print("Downloaded cover image")
+                        elif poster_ok:
+                            print("Downloaded poster image")
+                        else:
+                            print("Failed to download image")
+                        
                     # --- Move video file to output_dir if NFO was generated ---
                     # Use the same tag replacement as output_dir for the video file name
                     video_output_name = FileUtils.get_output_video_name(filename, output_dir, best_result)
@@ -463,4 +457,3 @@ def import_cache(input):
 
 if __name__ == '__main__':
     cli()
-
