@@ -52,9 +52,8 @@ class PatternMatcher:
         if prefix_lower == 't28':
             return f"55t28{number.zfill(5)}"
         
-        if prefix_lower == 'abf':
+        if prefix_lower in ['abf', 'abw']:
             return f"118{prefix_lower}{number.zfill(3)}"
-
         
         no_zero_pad_codes = {'smus', 'smjh', 'smub', 'smjs', 'smjx', 'orecz', 'nost', 'mfc', 'mfcs'}
         if prefix_lower in no_zero_pad_codes:
