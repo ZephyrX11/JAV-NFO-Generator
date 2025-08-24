@@ -147,32 +147,37 @@ class Translator:
         r18dev_english_mode = getattr(settings, 'R18DEV_LANGUAGE', 'jp') == 'en'
         field_sources = metadata.get('_field_sources', {})
         
+        skipped_fields = []
         for field in settings.TRANSLATION_FIELDS:
             field = field.strip()
-            if field in metadata and metadata[field]:
-                original_value = metadata[field]
+            if field not in metadata or not metadata[field]:
+                continue
+            
+            original_value = metadata[field]
 
-                # Skip translation if field is from R18.dev and R18DEV_LANGUAGE is 'en'
-                if r18dev_english_mode and field_sources.get(field) == 'r18dev':
-                    print(f"Skipping translation for {field}: R18.dev already provides English data")
-                    continue
+            # Skip translation if field is from R18.dev and R18DEV_LANGUAGE is 'en'
+            if r18dev_english_mode and field_sources.get(field) == 'r18dev':
+                skipped_fields.append(field)
+                continue
 
-                # Handle array fields (directors, genres, actresses)
-                
-                if field in ['genres', 'directors'] and isinstance(original_value, list):
-                    translated_value = self._translate_array(original_value, field)
-                elif field in ['actresses', 'actresses_array'] and isinstance(original_value, list):
-                    translated_value = self._translate_actress_array(original_value)
-                else:
-                    translated_value = self.translate_text(original_value, field)
-                
-                if translated_value and translated_value != original_value:
-                    translated_metadata[field] = translated_value
-                    print(f"Translated {field}: {str(original_value)[:50]}... → {str(translated_value)[:50]}...")
-                
-                # Rate limiting for API calls (only if not cached)
-                if isinstance(original_value, str) and not translation_cache.get_cached_translation(original_value, field):
-                    time.sleep(0.5)
+            # Handle array fields (directors, genres, actresses)
+            if field in ['genres', 'directors'] and isinstance(original_value, list):
+                translated_value = self._translate_array(original_value, field)
+            elif field in ['actresses', 'actresses_array'] and isinstance(original_value, list):
+                translated_value = self._translate_actress_array(original_value)
+            else:
+                translated_value = self.translate_text(original_value, field)
+            
+            if translated_value and translated_value != original_value:
+                translated_metadata[field] = translated_value
+                print(f"Translated {field}: {str(original_value)[:50]}... → {str(translated_value)[:50]}...")
+            
+            # Rate limiting for API calls (only if not cached)
+            if isinstance(original_value, str) and not translation_cache.get_cached_translation(original_value, field):
+                time.sleep(0.5)
+            
+        if skipped_fields:
+            print(f"Skipped translation for {', '.join(skipped_fields)}: R18.dev provided English data")
         
         return translated_metadata
 
