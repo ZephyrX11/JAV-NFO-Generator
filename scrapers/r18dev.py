@@ -69,45 +69,45 @@ class R18DevScraper(BaseScraper):
 
         # Select title based on language preference
         if use_english:
-            primary_title = raw_data.get('title_en', '') or raw_data.get('title_ja', '')
-            secondary_title = raw_data.get('title_ja', '')
-            directors = [director["name_romaji"] for director in raw_data.get('directors', [])]
-            label = raw_data.get('label_name_en', '')
+            primary_title = raw_data.get('title_en') or ''
+            secondary_title = raw_data.get('title_ja') or ''
+            directors = [d.get('name_romaji', '') for d in raw_data.get('directors', []) if d.get('name_romaji')]
+            label = raw_data.get('label_name_en') or ''
             categories = [category['name_en'] for category in raw_data.get('categories', [])]
-            series = raw_data.get('series_name_en', '')
-            maker = raw_data.get('maker_name_en', '')
+            series = raw_data.get('series_name_en') or ''
+            maker = raw_data.get('maker_name_en') or ''
             actresses = [
-                {"name": a.get("name_romaji", "") or "","image": IMAGE_BASE_URL + a["image_url"] if a.get("image_url") else ""}
-                for a in raw_data.get("actresses", [])
+                {'name': a.get('name_romaji', '') or '', 'image': IMAGE_BASE_URL + a['image_url'] if a.get('image_url') else ''}
+                for a in raw_data.get('actresses', [])
             ]
         else:
-            primary_title = raw_data.get('title_ja', '') or raw_data.get('title_en', '')
-            secondary_title = raw_data.get('title_en', '')
-            directors = [director["name_kanji"] for director in raw_data.get('directors', [])]
-            label = raw_data.get('label_name_ja', '')
+            primary_title = raw_data.get('title_ja') or ''
+            secondary_title = raw_data.get('title_en') or ''
+            directors = [d.get('name_kanji', '') for d in raw_data.get('directors', []) if d.get('name_kanji')]
+            label = raw_data.get('label_name_ja') or ''
             categories = [category['name_ja'] for category in raw_data.get('categories', [])]
-            series = raw_data.get('series_name_ja', '')
-            maker = raw_data.get('maker_name_ja', '')
+            series = raw_data.get('series_name_ja') or ''
+            maker = raw_data.get('maker_name_ja') or ''
             actresses = [
-                {"name": a.get("name_kanji", "") or "", "image": IMAGE_BASE_URL + a["image_url"] if a.get("image_url") else ""}
-                for a in raw_data.get("actresses", [])
+                {'name': a.get('name_kanji', '') or '', 'image': IMAGE_BASE_URL + a['image_url'] if a.get('image_url') else ''}
+                for a in raw_data.get('actresses', [])
             ]
             
         metadata = {
             'source': 'r18.dev',
-            'content_id': raw_data.get('content_id', ''),
-            'id': raw_data.get('dvd_id', ''),
+            'content_id': raw_data.get('content_id') or '',
+            'id': raw_data.get('dvd_id') or '',
             'title': primary_title,
-            'title_en': raw_data.get('title_en', ''),
-            'title_jp': raw_data.get('title_ja', ''),
-            'original_title': raw_data.get('title_ja', ''),
-            'release_date': raw_data.get('release_date', ''),
-            'year': raw_data.get('release_date', '').split('-')[0] if raw_data.get('release_date', '') else '',
+            'title_en': raw_data.get('title_en') or '',
+            'title_jp': raw_data.get('title_ja') or '',
+            'original_title': raw_data.get('title_ja') or '',
+            'release_date': raw_data.get('release_date') or '',
+            'year': (raw_data.get('release_date') or '').split('-')[0] if raw_data.get('release_date') else '',
             'runtime': raw_data.get('runtime_mins', 0),
-            'description': raw_data.get('comment_en', ''),
-            'cover_url': raw_data.get('jacket_full_url', ''),
-            'poster_url': raw_data.get('jacket_thumb_url', ''),
-            'sample_url': raw_data.get('sample_url', ''),
+            'description': raw_data.get('comment_en') or '',
+            'cover': raw_data.get('jacket_full_url') or '',
+            'poster': raw_data.get('jacket_thumb_url') or '',
+            'sample_url': raw_data.get('sample_url') or '',
             'actresses': actresses,
             'directors': directors,
             'genres': categories,
@@ -118,17 +118,10 @@ class R18DevScraper(BaseScraper):
         }
         
         return metadata
-    
-    def _format_gallery(self, gallery: List[Dict[str, Any]]) -> List[Dict[str, str]]:
-        """Format gallery/sample images data."""
-        formatted = []
-        for image in gallery:
-            formatted.append({
-                'full_url': image.get('image_full', ''),
-                'thumb_url': image.get('image_thumb', '')
-            })
-        return formatted
-    
+    def _format_gallery(self, gallery: List[Dict[str, Any]]) -> List[str]:
+        """Return only the full-size gallery images."""
+        return [img["image_full"] for img in gallery if img.get("image_full")]
+
     def validate_response(self, response) -> bool:
         """
         Validate if response contains valid R18.dev data.

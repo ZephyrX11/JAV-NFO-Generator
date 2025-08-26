@@ -302,7 +302,15 @@ class JAVNFOGenerator:
         # Images
         print(f"{Fore.GREEN}Cover        :{Style.RESET_ALL} {metadata.get('cover', 'N/A')}")
         print(f"{Fore.GREEN}Poster       :{Style.RESET_ALL} {metadata.get('poster', 'N/A')}")
-        print(f"{Fore.GREEN}Fanart       :{Style.RESET_ALL} {metadata.get('fanart', 'N/A')}")
+        gallery = metadata.get("gallery", [])
+        if gallery:
+            print(f"{Fore.GREEN}Gallery      :{Style.RESET_ALL}")
+            for i, img in enumerate(gallery[:3], 1):
+                print(f"   [{i}] {img}")
+            if len(gallery) > 3:
+                print(f"   ... and {len(gallery) - 3} more")
+        else:
+            print(f"{Fore.GREEN}Gallery      :{Style.RESET_ALL} N/A")
         
         print(f"{Fore.CYAN}================{Style.RESET_ALL}\n")
     
