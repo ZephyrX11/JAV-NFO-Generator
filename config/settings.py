@@ -71,8 +71,8 @@ class Settings:
     FIELD_PRIORITY_RELEASE_DATE = ['r18dev', 'fanza']
     FIELD_PRIORITY_RUNTIME = ['r18dev', 'fanza']
     FIELD_PRIORITY_DESCRIPTION = ['r18dev', 'fanza']
-    FIELD_PRIORITY_COVER = ['r18dev', 'fanza']
-    FIELD_PRIORITY_POSTER = ['r18dev', 'fanza']
+    FIELD_PRIORITY_COVER = ['fanza', 'r18dev']
+    FIELD_PRIORITY_POSTER = ['fanza', 'r18dev']
     FIELD_PRIORITY_GALLERY = ['r18dev', 'fanza']
     
     # Scraper merge strategy: 'priority' (use first available) or 'merge' (combine data)

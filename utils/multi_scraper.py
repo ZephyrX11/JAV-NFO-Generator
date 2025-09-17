@@ -11,23 +11,26 @@ class MultiScraperManager:
         self.scraper_factory = ScraperFactory()
         self.enabled_scrapers = settings.ENABLED_SCRAPERS
         
-        # Field priority mappings
+        # Field priority mappings - only include fields defined in settings
         self.field_priorities = {
             'title': settings.FIELD_PRIORITY_TITLE,
             'title_en': settings.FIELD_PRIORITY_TITLE,
+            'original_title': settings.FIELD_PRIORITY_TITLE,
+            'release_date': settings.FIELD_PRIORITY_RELEASE_DATE,
+            'year': settings.FIELD_PRIORITY_RELEASE_DATE,
+            'runtime': settings.FIELD_PRIORITY_RUNTIME,
+            'description': settings.FIELD_PRIORITY_DESCRIPTION,
+            'plot': settings.FIELD_PRIORITY_DESCRIPTION,
             'actresses': settings.FIELD_PRIORITY_ACTRESSES,
             'actors': settings.FIELD_PRIORITY_ACTRESSES,
             'directors': settings.FIELD_PRIORITY_DIRECTORS,
-            'categories': settings.FIELD_PRIORITY_CATEGORIES,
             'genres': settings.FIELD_PRIORITY_CATEGORIES,
-            'maker': settings.FIELD_PRIORITY_STUDIO,
+            'categories': settings.FIELD_PRIORITY_CATEGORIES,
             'studio': settings.FIELD_PRIORITY_STUDIO,
+            'label': settings.FIELD_PRIORITY_STUDIO,
             'series': settings.FIELD_PRIORITY_SERIES,
-            'release_date': settings.FIELD_PRIORITY_RELEASE_DATE,
-            'runtime': settings.FIELD_PRIORITY_RUNTIME,
-            'description': settings.FIELD_PRIORITY_DESCRIPTION,
-            'cover_url': settings.FIELD_PRIORITY_COVER,
-            'poster_url': settings.FIELD_PRIORITY_POSTER,
+            'cover': settings.FIELD_PRIORITY_COVER,
+            'poster': settings.FIELD_PRIORITY_POSTER,
             'gallery': settings.FIELD_PRIORITY_GALLERY
         }
     
@@ -132,11 +135,22 @@ class MultiScraperManager:
             return merged_value, None
         
         # Priority strategy: use first available
+        # First try the priority list
         for scraper_name in priority_list:
-            if scraper_name in scraper_results and scraper_results[scraper_name]:
-                result = scraper_results[scraper_name]
-                if field in result and self._is_valid_value(result[field]):
-                    return result[field], scraper_name
+            if (scraper_name in scraper_results and 
+                scraper_results[scraper_name] and 
+                field in scraper_results[scraper_name] and 
+                self._is_valid_value(scraper_results[scraper_name][field])):
+                return scraper_results[scraper_name][field], scraper_name
+        
+        # If not found in priority list, try all enabled scrapers in order
+        for scraper_name in self.enabled_scrapers:
+            if (scraper_name in scraper_results and 
+                scraper_name not in priority_list and  # Skip already checked ones
+                scraper_results[scraper_name] and 
+                field in scraper_results[scraper_name] and 
+                self._is_valid_value(scraper_results[scraper_name][field])):
+                return scraper_results[scraper_name][field], scraper_name
         
         return None, None
     
@@ -154,9 +168,10 @@ class MultiScraperManager:
         merged_list = []
         seen_items = set()
         
-        # Get priority list for this field
+        # Get priority list for this field, fallback to enabled scrapers in order
         priority_list = self.field_priorities.get(field, self.enabled_scrapers)
         
+        # First process in priority order
         for scraper_name in priority_list:
             if scraper_name in scraper_results and scraper_results[scraper_name]:
                 result = scraper_results[scraper_name]
@@ -172,6 +187,25 @@ class MultiScraperManager:
                         if identifier not in seen_items:
                             merged_list.append(item)
                             seen_items.add(identifier)
+        
+        # Then process any remaining enabled scrapers not in priority list
+        for scraper_name in self.enabled_scrapers:
+            if (scraper_name in scraper_results and 
+                scraper_name not in priority_list and  # Skip already processed
+                scraper_results[scraper_name] and 
+                field in scraper_results[scraper_name] and 
+                isinstance(scraper_results[scraper_name][field], list)):
+                for item in scraper_results[scraper_name][field]:
+                    # Create a unique identifier for the item
+                    if isinstance(item, dict):
+                        # For dict items, use name or id as identifier
+                        identifier = item.get('name', item.get('id', str(item)))
+                    else:
+                        identifier = str(item)
+                    
+                    if identifier not in seen_items:
+                        merged_list.append(item)
+                        seen_items.add(identifier)
         
         return merged_list
     
