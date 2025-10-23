@@ -4,6 +4,7 @@ click>=8.1.0              # CLI framework
 python-dotenv>=1.0.0      # Environment variable management
 colorama>=0.4.6           # Cross-platform colored terminal output
 tqdm>=4.65.0             # Progress bars for batch operations
+pillow>=10.0.0           # Python Imaging Library for image processing
 
 # Optional dependencies (uncomment if needed)
 # beautifulsoup4>=4.12.0  # HTML parsing (for future web scraping)
