@@ -9,8 +9,6 @@ from typing import List, Optional
 import click
 from colorama import init, Fore, Style
 from tqdm import tqdm
-from PIL import Image
-import requests
 import shutil
 
 # Initialize colorama for cross-platform colored output
@@ -28,6 +26,7 @@ from utils.translator import Translator
 from utils.cache import translation_cache
 from utils.subtitle_downloader import SubtitleDownloader
 from utils.multi_scraper import MultiScraperManager
+from utils.image_downloader import download_image, crop_image
 
 class JAVNFOGenerator:
     """Main application class for JAV NFO Generator."""
@@ -161,58 +160,23 @@ class JAVNFOGenerator:
                         cover_url = best_result.get("cover")
                         poster_url = best_result.get("poster")
 
-                        def download_image(url, name):
-                            if not url:
-                                return False
-                            ext = os.path.splitext(url)[1] or ".jpg"
-                            path = os.path.join(nfo_dir, f"{name}{ext}")
-                            try:
-                                # Download the image
-                                r = requests.get(url, timeout=10)
-                                if r.status_code != 200:
-                                    return False
-                                
-                                # Save image and check dimensions for poster
-                                with open(path, "wb") as f:
-                                    f.write(r.content)
-                                
-                                # If this is a poster, verify dimensions
-                                if name == settings.IMAGE_FILENAME_POSTER:
-                                    with Image.open(path) as img:
-                                        width, height = img.size
-                                        if height < 300:
-                                            os.remove(path)  # Remove undersized poster
-                                            return False
-                                
-                                return True
-                            except Exception as e:
-                                print(f"Error downloading {name}: {e}")
-                                return False
-
-                        cover_ok = download_image(cover_url, settings.IMAGE_FILENAME_COVER)
-                        poster_ok = download_image(poster_url, settings.IMAGE_FILENAME_POSTER)
+                        cover_ok = download_image(
+                            cover_url, settings.IMAGE_FILENAME_COVER, nfo_dir
+                        )
+                        poster_ok = download_image(
+                            poster_url, settings.IMAGE_FILENAME_POSTER, nfo_dir, poster=True
+                        )
 
                         if cover_ok and poster_ok:
                             print(f"{Fore.MAGENTA}Downloaded cover and poster image{Style.RESET_ALL}")
                         elif cover_ok:
                             print(f"{Fore.MAGENTA}Downloaded cover image, attempting to create poster...{Style.RESET_ALL}")
-                            # Try to create poster by cropping cover
                             try:
                                 cover_ext = os.path.splitext(cover_url)[1] or ".jpg"
                                 poster_ext = os.path.splitext(poster_url)[1] or ".jpg"
                                 cover_path = os.path.join(nfo_dir, f"{settings.IMAGE_FILENAME_COVER}{cover_ext}")
                                 poster_path = os.path.join(nfo_dir, f"{settings.IMAGE_FILENAME_POSTER}{poster_ext}")
-                                
-                                original_cover = Image.open(cover_path)
-                                width, height = original_cover.size
-                                left = width/1.895734597
-                                top = 0
-                                right = width
-                                bottom = height
-                                
-                                cropped_cover = original_cover.crop((left, top, right, bottom))
-                                if cropped_cover.size[1] >= 300:  # Check if cropped height is sufficient
-                                    cropped_cover.save(poster_path)
+                                if crop_image(cover_path, poster_path):
                                     print(f"{Fore.GREEN}Successfully created poster from cover image{Style.RESET_ALL}")
                                 else:
                                     print(f"{Fore.YELLOW}Cropped image too small for poster{Style.RESET_ALL}")
