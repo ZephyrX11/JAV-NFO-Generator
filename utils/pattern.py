@@ -64,7 +64,7 @@ class PatternMatcher:
         
         # Pattern 1: Prefix with "1" instead of "00" for specific codes
         prefix_1_codes = {
-            'sdmf', 'dldss', 'sw', 'start', 'stars', 'piyo', 'sdam', 'sdmm', 'hawa', 'fsdss', 'senn'
+            'sdmf', 'dldss', 'sw', 'start', 'stars', 'piyo', 'sdam', 'sdmm', 'hawa', 'fsdss', 'senn', 'fns'
         }
         if prefix_lower in prefix_1_codes:
             return f"1{prefix_lower}{padded_number}"
